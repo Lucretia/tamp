@@ -1,0 +1,7 @@
+#!/bin/sh
+
+gnatlink \
+    --GCC=target-gcc \
+    --LINK=target-gcc \
+    -b target \
+    "$@"

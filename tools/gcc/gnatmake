@@ -1,0 +1,7 @@
+#!/bin/sh
+
+gnatmake \
+    --GCC=target-gcc \
+    --GNATBIND=target-gnatbind \
+    --GNATLINK=target-gnatlink \
+    "$@"
