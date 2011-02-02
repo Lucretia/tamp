@@ -4,6 +4,16 @@
 ################################################################################
 #!/bin/sh
 
+if [ ! -f ./config.inc ]
+then
+    echo "Error! No config.inc"
+    echo "  cp config-master.inc config.inc"
+    echo ""
+    echo "  Edit config.inc for your system and run this script again."
+
+    exit 2
+fi
+
 source ./config.inc
 
 echo "Installation dir: " $PREFIX
