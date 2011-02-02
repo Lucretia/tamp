@@ -1,0 +1,14 @@
+The Ada Microkernel Project (TAMP)
+
+Author: Luke A. Guest (C) 2011
+
+
+The aim of this project is to create a simple microkernel using Ada as the
+implementation lanaguage.
+
+To get the toolchain built, enter the thirdparty directory, copy the
+config-master.inc file to config.inc, edit this and then run the following
+command:
+  ./build-tools.sh
+
+This will install the various tools required to the directories of your choice.
