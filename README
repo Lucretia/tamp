@@ -1,7 +1,16 @@
-The Ada Microkernel Project (TAMP)
+                    The Ada Microkernel Project (TAMP)
 
-Author: Luke A. Guest (C) 2011
+Legal
+-----        
 
+Copright © 2011, Luke A. Guest & Dave Rees, all rights reserved.
+
+License is GPL v2 until further notice and is subject to change during
+development.
+
+
+Introduction
+------------ 
 
 The aim of this project is to create a simple microkernel using Ada as the
 implementation lanaguage.
