@@ -1,0 +1,424 @@
+Common subdirectories: qemu.orig/audio and qemu/audio
+diff -upN qemu.orig/bb_nandflash_ecc.c qemu/bb_nandflash_ecc.c
+--- qemu.orig/bb_nandflash_ecc.c	1970-01-01 01:00:00.000000000 +0100
++++ qemu/bb_nandflash_ecc.c	2011-01-30 18:31:49.000000000 +0000
+@@ -0,0 +1,202 @@
++/*
++ * calculate ecc code for beagle nand flash
++ *
++ * Copyright (C) 2008 yajin <yajin@vm-kernel.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 or
++ * (at your option) version 3 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ */
++
++#include "qemu-common.h"
++
++#define BB_NAND_PAGE_SIZE   2048
++#define BB_NAND_OOB_SIZE     64
++#define BB_NAND_SIZE 0x10000000  /*does not include oob*/
++#define BB_NAND_ECC_OFFSET   0x28
++
++int nand_calculate_ecc(const u_char *dat,
++		       u_char *ecc_code);
++
++void useage(void);
++
++/*
++ * Pre-calculated 256-way 1 byte column parity
++ */
++static const u_char nand_ecc_precalc_table[] = {
++	0x00, 0x55, 0x56, 0x03, 0x59, 0x0c, 0x0f, 0x5a, 0x5a, 0x0f, 0x0c, 0x59, 0x03, 0x56, 0x55, 0x00,
++	0x65, 0x30, 0x33, 0x66, 0x3c, 0x69, 0x6a, 0x3f, 0x3f, 0x6a, 0x69, 0x3c, 0x66, 0x33, 0x30, 0x65,
++	0x66, 0x33, 0x30, 0x65, 0x3f, 0x6a, 0x69, 0x3c, 0x3c, 0x69, 0x6a, 0x3f, 0x65, 0x30, 0x33, 0x66,
++	0x03, 0x56, 0x55, 0x00, 0x5a, 0x0f, 0x0c, 0x59, 0x59, 0x0c, 0x0f, 0x5a, 0x00, 0x55, 0x56, 0x03,
++	0x69, 0x3c, 0x3f, 0x6a, 0x30, 0x65, 0x66, 0x33, 0x33, 0x66, 0x65, 0x30, 0x6a, 0x3f, 0x3c, 0x69,
++	0x0c, 0x59, 0x5a, 0x0f, 0x55, 0x00, 0x03, 0x56, 0x56, 0x03, 0x00, 0x55, 0x0f, 0x5a, 0x59, 0x0c,
++	0x0f, 0x5a, 0x59, 0x0c, 0x56, 0x03, 0x00, 0x55, 0x55, 0x00, 0x03, 0x56, 0x0c, 0x59, 0x5a, 0x0f,
++	0x6a, 0x3f, 0x3c, 0x69, 0x33, 0x66, 0x65, 0x30, 0x30, 0x65, 0x66, 0x33, 0x69, 0x3c, 0x3f, 0x6a,
++	0x6a, 0x3f, 0x3c, 0x69, 0x33, 0x66, 0x65, 0x30, 0x30, 0x65, 0x66, 0x33, 0x69, 0x3c, 0x3f, 0x6a,
++	0x0f, 0x5a, 0x59, 0x0c, 0x56, 0x03, 0x00, 0x55, 0x55, 0x00, 0x03, 0x56, 0x0c, 0x59, 0x5a, 0x0f,
++	0x0c, 0x59, 0x5a, 0x0f, 0x55, 0x00, 0x03, 0x56, 0x56, 0x03, 0x00, 0x55, 0x0f, 0x5a, 0x59, 0x0c,
++	0x69, 0x3c, 0x3f, 0x6a, 0x30, 0x65, 0x66, 0x33, 0x33, 0x66, 0x65, 0x30, 0x6a, 0x3f, 0x3c, 0x69,
++	0x03, 0x56, 0x55, 0x00, 0x5a, 0x0f, 0x0c, 0x59, 0x59, 0x0c, 0x0f, 0x5a, 0x00, 0x55, 0x56, 0x03,
++	0x66, 0x33, 0x30, 0x65, 0x3f, 0x6a, 0x69, 0x3c, 0x3c, 0x69, 0x6a, 0x3f, 0x65, 0x30, 0x33, 0x66,
++	0x65, 0x30, 0x33, 0x66, 0x3c, 0x69, 0x6a, 0x3f, 0x3f, 0x6a, 0x69, 0x3c, 0x66, 0x33, 0x30, 0x65,
++	0x00, 0x55, 0x56, 0x03, 0x59, 0x0c, 0x0f, 0x5a, 0x5a, 0x0f, 0x0c, 0x59, 0x03, 0x56, 0x55, 0x00
++};
++
++/**
++ * nand_calculate_ecc - [NAND Interface] Calculate 3-byte ECC for 256-byte block
++ * @dat:	raw data
++ * @ecc_code:	buffer for ECC
++ */
++int nand_calculate_ecc(const u_char *dat,
++		       u_char *ecc_code)
++{
++	uint8_t idx, reg1, reg2, reg3, tmp1, tmp2;
++	int i;
++
++	/* Initialize variables */
++	reg1 = reg2 = reg3 = 0;
++
++	/* Build up column parity */
++	for(i = 0; i < 256; i++) {
++		/* Get CP0 - CP5 from table */
++		idx = nand_ecc_precalc_table[*dat++];
++		reg1 ^= (idx & 0x3f);
++
++		/* All bit XOR = 1 ? */
++		if (idx & 0x40) {
++			reg3 ^= (uint8_t) i;
++			reg2 ^= ~((uint8_t) i);
++		}
++	}
++
++	/* Create non-inverted ECC code from line parity */
++	tmp1  = (reg3 & 0x80) >> 0; /* B7 -> B7 */
++	tmp1 |= (reg2 & 0x80) >> 1; /* B7 -> B6 */
++	tmp1 |= (reg3 & 0x40) >> 1; /* B6 -> B5 */
++	tmp1 |= (reg2 & 0x40) >> 2; /* B6 -> B4 */
++	tmp1 |= (reg3 & 0x20) >> 2; /* B5 -> B3 */
++	tmp1 |= (reg2 & 0x20) >> 3; /* B5 -> B2 */
++	tmp1 |= (reg3 & 0x10) >> 3; /* B4 -> B1 */
++	tmp1 |= (reg2 & 0x10) >> 4; /* B4 -> B0 */
++
++	tmp2  = (reg3 & 0x08) << 4; /* B3 -> B7 */
++	tmp2 |= (reg2 & 0x08) << 3; /* B3 -> B6 */
++	tmp2 |= (reg3 & 0x04) << 3; /* B2 -> B5 */
++	tmp2 |= (reg2 & 0x04) << 2; /* B2 -> B4 */
++	tmp2 |= (reg3 & 0x02) << 2; /* B1 -> B3 */
++	tmp2 |= (reg2 & 0x02) << 1; /* B1 -> B2 */
++	tmp2 |= (reg3 & 0x01) << 1; /* B0 -> B1 */
++	tmp2 |= (reg2 & 0x01) << 0; /* B7 -> B0 */
++
++	/* Calculate final ECC code */
++#ifdef CONFIG_MTD_NAND_ECC_SMC
++	ecc_code[0] = ~tmp2;
++	ecc_code[1] = ~tmp1;
++#else
++	ecc_code[0] = ~tmp1;
++	ecc_code[1] = ~tmp2;
++#endif
++	ecc_code[2] = ((~reg1) << 2) | 0x03;
++
++	return 0;
++}
++
++/*
++ *  usage: bb-nandflash-ecc    start_address  size
++ */
++void useage(void)
++{
++	printf("Useage:\n");
++	printf("bb_nandflash_ecc nand_img start_address  size\n");
++}
++
++/*start_address/size does not include oob
++  */
++int main(int argc, char **argv)
++{
++	uint32_t start_address,size;
++	char *nand_image;
++
++	uint32_t pagenumber,pages;
++
++	int nand_fd;
++	uint32_t i,j;
++
++	uint8_t page_data[BB_NAND_PAGE_SIZE+BB_NAND_OOB_SIZE];
++	uint8_t ecc_data[3];
++
++
++	if (argc!=4)
++	{
++		useage();
++		exit(1);
++	}
++
++	nand_image = argv[1];
++
++	start_address = strtol(argv[2],NULL,0);
++	size = strtol(argv[3],NULL,0);
++
++	nand_fd = open(nand_image,O_RDWR);
++	if (nand_fd<0)
++	{
++		printf("Can not open nand image %s \n",nand_image);
++		exit(1);
++	}
++
++	if (start_address>=BB_NAND_SIZE)
++	{
++		printf("start_address can no be more than 0x%x \n",BB_NAND_SIZE);
++		exit(1);
++	}
++	if ((start_address%BB_NAND_PAGE_SIZE)!=0)
++	{
++		printf("start_address should be aligned to page boundary \n");
++		exit(1);
++	}
++
++	if (size==0)
++	{
++		printf("size can no be zero \n");
++		exit(1);
++	}
++	if ((size%BB_NAND_PAGE_SIZE)!=0)
++	{
++		printf("size should be aligned to page boundary \n");
++		exit(1);
++	}
++
++
++	pagenumber = start_address/BB_NAND_PAGE_SIZE;
++	pages = size/BB_NAND_PAGE_SIZE;
++
++	for (i=0;i<pages;i++)
++	{
++		lseek(nand_fd,pagenumber*(BB_NAND_PAGE_SIZE+BB_NAND_OOB_SIZE),SEEK_SET);
++		int rw = read(nand_fd,page_data,BB_NAND_PAGE_SIZE+BB_NAND_OOB_SIZE);
++
++		for (j=0;j<BB_NAND_PAGE_SIZE/256;j++)
++		{
++			nand_calculate_ecc(page_data+j*256,ecc_data);
++			memcpy(page_data+BB_NAND_PAGE_SIZE+BB_NAND_ECC_OFFSET+j*3,ecc_data,3);
++		}
++		lseek(nand_fd,pagenumber*(BB_NAND_PAGE_SIZE+BB_NAND_OOB_SIZE),SEEK_SET);
++		rw = write(nand_fd,page_data,BB_NAND_PAGE_SIZE+BB_NAND_OOB_SIZE);
++		pagenumber++;
++	}
++
++	close(nand_fd);
++	return (1);
++}
++
+diff -upN qemu.orig/bb_nandflash.sh qemu/bb_nandflash.sh
+--- qemu.orig/bb_nandflash.sh	1970-01-01 01:00:00.000000000 +0100
++++ qemu/bb_nandflash.sh	2011-01-30 17:56:34.000000000 +0000
+@@ -0,0 +1,147 @@
++#! /bin/sh
++# Copyright (C) 2008 yajin (yajin@vm-kernel.org)
++#
++# Put the xloader,u-boot,kernel and rootfs into nand flash image.
++# 
++#
++# bb_nandflash.sh  <x-loader-image>   <nandflashimage>  x-loader
++# bb_nandflash.sh  <u-boot-image>   <nandflashimage>  u-boot	
++# bb_nandflash.sh  <kernel-image>   <nandflashimage>  kernel
++# bb_nandflash.sh  <rootfs>   <nandflashimage>  rootfs
++	
++# We assume that rootfs image has oob info 
++# while xloader u-boot and kernel image does not have oob info.
++
++
++
++if [ ! -r "$1" ]; then
++	echo "Usage: $0 <image> <destimage> [<partition>]"
++	exit -1
++fi
++if [ 3 -ne "$#" ]; then
++	echo "Usage: $0 <image> <destimage> [<partition>]"
++	exit -1
++fi
++
++# Nand flash partitions
++# 0x00000000-0x00080000 : "X-Loader" 
++# 0x00080000-0x00260000 : "U-Boot" 
++# 0x00260000-0x00280000 : "U-Boot Env" 
++# 0x00280000-0x00680000 : "Kernel" 
++# 0x00680000-0x10000000 : "File System" 
++
++flash_page_size=2048
++flash_oob_size=64
++flash_image_pages=131072
++
++xloader_page_offset=0
++uboot_page_offset=256
++kernel_page_offset=1280
++rootfs_page_offset=3328
++
++
++flash_image_name=$2
++xloader_image_name=$1
++uboot_image_name=$1
++kernel_image_name=$1
++rootfs_image_name=$1
++
++echo "flash image name:"$flash_image_name
++
++#beagle board's NAND flash is 2G bit(256M bytes)
++if [ ! -e "$2" ]; then
++	echo $flash_image_name" does not exist.Create it!"
++	echo -en \\0377\\0377\\0377\\0377\\0377\\0377\\0377\\0377 > .8b
++	cat .8b .8b > .16b 
++	cat .16b .16b >.32b
++	cat .32b .32b >.64b  #OOB is 64 bytes
++	cat .64b .64b .64b .64b .64b .64b .64b .64b > .512b
++	cat .512b .512b .512b .512b .64b>.page  # A page is 2K bytes of data + 64bytes OOB
++	cat .page .page .page .page .page .page .page .page >.8page
++	cat .8page .8page .8page .8page .8page .8page .8page .8page >.block  # a block = 64 pages
++	cat .block .block .block .block .block .block .block .block >.8block
++	cat .8block .8block .8block .8block .8block .8block .8block .8block >.64block
++	cat .64block .64block .64block .64block .64block .64block .64block .64block >.512block
++	cat .512block .512block .512block .512block >$flash_image_name
++	rm -rf .8b .16b .32b .64b .page .8page .64sec .block .8block .64block .512block 
++fi
++
++put_no_oob() 
++{
++	#echo $1
++	#echo $2
++	image_name=$1
++	image_page_offset=$2
++	image_len=`du -shb $image_name |awk '{print $1}'`
++	image_pages=$[$image_len/2048]
++
++	if [ 0 -ne $[$image_len%$flash_page_size] ]; then
++		image_pages=$[$image_pages+1]
++	fi
++
++	#echo $image_len
++	#echo $image_pages
++	i=0
++	while  [ $i -lt $image_pages  ]
++  do
++  	#echo $i
++  	out_offset=$[$image_page_offset+$i]
++  	in_offset=$i
++  	#echo "out_offset:"$out_offset
++  	#echo "in_offset:"$in_offset
++  	dd if=$image_name of=$flash_image_name conv=notrunc count=1 obs=$[$flash_page_size+$flash_oob_size] ibs=$flash_page_size  seek=$out_offset skip=$in_offset  
++  	i=$[$i + 1]
++	done	
++}
++
++put_xloader()
++{
++	echo "xloader image name:"$xloader_image_name
++	put_no_oob $1 $xloader_page_offset
++	echo "put xloader into flash image done!"
++}
++put_uboot()
++{
++	echo "uboot image name:"$uboot_image_name
++	put_no_oob $1 $uboot_page_offset
++	echo "put u-boot into flash image done!"
++}
++put_kernel()
++{
++	echo "Linux kernel image name:"$kernel_image_name
++	put_no_oob $1 $kernel_page_offset
++	echo "put Linux kernel into flash image done!"
++}
++put_rootfs()
++{
++	echo "rootfs image name:"$rootfs_image_name
++	put_no_oob $1 $rootfs_page_offset
++	echo "put rootfs into flash image done!"
++}
++case "$3" in
++	x-loader)
++		put_xloader $1
++		;;
++	u-boot)
++		put_uboot $1
++		;;
++	kernel)
++		put_kernel $1
++		;;
++	rootfs)
++		put_rootfs $1
++		;;
++	*)
++		echo "Unknown partition $3"
++		exit -1
++esac
++
++
++
++
++
++
++
++
++
++
+Common subdirectories: qemu.orig/block and qemu/block
+Common subdirectories: qemu.orig/bsd-user and qemu/bsd-user
+diff -upN qemu.orig/configure qemu/configure
+--- qemu.orig/configure	2011-01-27 18:22:12.000000000 +0000
++++ qemu/configure	2011-01-30 19:10:48.000000000 +0000
+@@ -2419,6 +2419,10 @@ if test "$softmmu" = yes ; then
+   fi
+ fi
+ 
++if echo "$target_list" | grep -q "arm-softmmu"; then
++ tools="bb_nandflash_ecc\$(EXESUF) $tools"
++fi
++
+ # Mac OS X ships with a broken assembler
+ roms=
+ if test \( "$cpu" = "i386" -o "$cpu" = "x86_64" \) -a \
+Common subdirectories: qemu.orig/darwin-user and qemu/darwin-user
+Common subdirectories: qemu.orig/default-configs and qemu/default-configs
+Common subdirectories: qemu.orig/docs and qemu/docs
+Common subdirectories: qemu.orig/fpu and qemu/fpu
+Common subdirectories: qemu.orig/fsdev and qemu/fsdev
+Common subdirectories: qemu.orig/gdb-xml and qemu/gdb-xml
+Common subdirectories: qemu.orig/.git and qemu/.git
+Common subdirectories: qemu.orig/hw and qemu/hw
+Common subdirectories: qemu.orig/linux-user and qemu/linux-user
+diff -upN qemu.orig/Makefile qemu/Makefile
+--- qemu.orig/Makefile	2011-01-27 18:22:12.000000000 +0000
++++ qemu/Makefile	2011-01-30 19:14:11.000000000 +0000
+@@ -153,6 +153,8 @@ version-obj-$(CONFIG_WIN32) += version.o
+ qemu-img.o: qemu-img-cmds.h
+ qemu-img.o qemu-tool.o qemu-nbd.o qemu-io.o cmd.o: $(GENERATED_HEADERS)
+ 
++bb_nandflash_ecc$(EXESUF): bb_nandflash_ecc.o
++
+ qemu-img$(EXESUF): qemu-img.o qemu-tool.o qemu-error.o $(oslib-obj-y) $(trace-obj-y) $(block-obj-y) $(qobject-obj-y) $(version-obj-y) qemu-timer-common.o
+ 
+ qemu-nbd$(EXESUF): qemu-nbd.o qemu-tool.o qemu-error.o $(oslib-obj-y) $(trace-obj-y) $(block-obj-y) $(qobject-obj-y) $(version-obj-y) qemu-timer-common.o
+@@ -236,6 +238,7 @@ install: all $(if $(BUILD_DOCS),install-
+ 	$(INSTALL_DIR) "$(DESTDIR)$(bindir)"
+ ifneq ($(TOOLS),)
+ 	$(INSTALL_PROG) $(STRIP_OPT) $(TOOLS) "$(DESTDIR)$(bindir)"
++	$(INSTALL_PROG) $(SRC_PATH)/bb_nandflash.sh "$(DESTDIR)$(bindir)"
+ endif
+ ifneq ($(BLOBS),)
+ 	$(INSTALL_DIR) "$(DESTDIR)$(datadir)"
+Common subdirectories: qemu.orig/net and qemu/net
+Common subdirectories: qemu.orig/pc-bios and qemu/pc-bios
+Common subdirectories: qemu.orig/QMP and qemu/QMP
+Common subdirectories: qemu.orig/roms and qemu/roms
+Common subdirectories: qemu.orig/skin and qemu/skin
+Common subdirectories: qemu.orig/slirp and qemu/slirp
+Common subdirectories: qemu.orig/sysconfigs and qemu/sysconfigs
+Common subdirectories: qemu.orig/target-alpha and qemu/target-alpha
+Common subdirectories: qemu.orig/target-arm and qemu/target-arm
+Common subdirectories: qemu.orig/target-cris and qemu/target-cris
+Common subdirectories: qemu.orig/target-i386 and qemu/target-i386
+Common subdirectories: qemu.orig/target-m68k and qemu/target-m68k
+Common subdirectories: qemu.orig/target-microblaze and qemu/target-microblaze
+Common subdirectories: qemu.orig/target-mips and qemu/target-mips
+Common subdirectories: qemu.orig/target-ppc and qemu/target-ppc
+Common subdirectories: qemu.orig/target-s390x and qemu/target-s390x
+Common subdirectories: qemu.orig/target-sh4 and qemu/target-sh4
+Common subdirectories: qemu.orig/target-sparc and qemu/target-sparc
+Common subdirectories: qemu.orig/tcg and qemu/tcg
+Common subdirectories: qemu.orig/tests and qemu/tests
+Common subdirectories: qemu.orig/ui and qemu/ui
