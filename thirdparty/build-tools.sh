@@ -1,19 +1,19 @@
+################################################################################
+# build-tools.sh
+# Luke A. Guest (C) 2011
+################################################################################
 #!/bin/sh
 
-export GMP_VERSION=5.0.1
-export MPFR_VERSION=3.0.0
-export MPC_VERSION=0.8.2
-export BINUTILS_VERSION=2.21
-export GCC_VERSION=4.5.2
-export U_BOOT_VERSION=1.3.4
-export NEWLIB_VERSION=1.19.0
+source ./config.inc
 
-################################################################################
-# Installation directory
-################################################################################
-PREFIX=/opt/tamp-cross
-GCC_LIBS_PREFIX=/opt/gcc-4.5.2-maths
-JOBS=-j 2
+echo "Installation dir: " $PREFIX
+echo "Parallelism     : " $JOBS
+echo "GMP Version     : " $GMP_VERSION
+echo "MPFR Version    : " $MPFR_VERSION
+echo "MPC Version     : " $MPC_VERSION
+echo "Binutils Version: " $BINUTILS_VERSION
+echo "GCC Version     : " $GCC_VERSION
+echo "NewLib Version  : " $NEWLIB_VERSION
 
 TOP=`pwd`
 
@@ -91,7 +91,7 @@ function build_toolchain()
     if [ ! -f .make ]
     then
 	echo "Building gmp..."
-	make $(JOBS) &> log.make.txt
+	make $JOBS &> log.make.txt
 
 	check_error .make
     fi
@@ -124,7 +124,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building mpfr..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi
@@ -159,7 +159,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building mpc..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi
@@ -197,7 +197,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building native gcc..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi
@@ -239,7 +239,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building binutils for $1..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi
@@ -284,7 +284,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building stage 1 gcc for $1..."
-	    make $(JOBS) all-gcc &> log.make.txt
+	    make $JOBS all-gcc &> log.make.txt
 
 	    check_error .make
 	fi
@@ -321,7 +321,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building newlib for $1..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi
@@ -368,7 +368,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building stage 2 gcc for $1..."
-	    make $(JOBS) &> log.make.txt
+	    make $JOBS &> log.make.txt
 
 	    check_error .make
 	fi

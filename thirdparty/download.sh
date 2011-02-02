@@ -1,15 +1,8 @@
+################################################################################
+# download.sh
+# Luke A. Guest (C) 2011
+################################################################################
 #!/bin/bash
-
-# These mirrors can be changed to your local mirror if necessary.
-BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
-GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION
-GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
-MPFR_MIRROR=http://www.mpfr.org/mpfr-$MPFR_VERSION
-MPC_MIRROR=http://www.multiprecision.org/mpc/download
-U_BOOT_MIRROR=ftp://ftp.denx.de/pub/u-boot
-NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
-
-SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
 
 function check_error()
 {
