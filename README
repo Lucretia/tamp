@@ -12,3 +12,5 @@ command:
   ./build-tools.sh
 
 This will install the various tools required to the directories of your choice.
+On my x86-64 Ubuntu install, this process takes approximately 3GB of disk space.
+
