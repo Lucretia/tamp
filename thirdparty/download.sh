@@ -263,15 +263,15 @@ cd ..
 if [ ! -d u-boot ]
 then
     echo "  >> Downloading u-boot from Denx..."
-    git clone git://git.denx.de/u-boot.git
+    # git clone git://git.denx.de/u-boot.git
 
-    check_error
+    # check_error
 
     echo "  >> Downloading u-boot for omap3 from Denx..."
     cd u-boot
-    git checkout --track -b omap3 origin/master
+    # git checkout --track -b omap3 origin/master
 
-    check_error
+    # check_error
 
     cd ..
 else
