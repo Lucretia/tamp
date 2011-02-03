@@ -1,0 +1,20 @@
+*** gcc-4.6-20110129.orig/gcc/ada/mlib-tgt-specific-xi.adb	2009-04-10 14:32:09.000000000 +0100
+--- gcc-4.6-20110129/gcc/ada/mlib-tgt-specific-xi.adb	2011-02-03 18:47:28.000000000 +0000
+***************
+*** 163,168 ****
+--- 163,177 ----
+           else
+              return "powerpc-elf-";
+           end if;
++       elsif Target_Name (Target_Name'First .. Index) = "arm" then
++          if Target_Name'Length >= 13 and then
++            Target_Name (Target_Name'First .. Target_Name'First + 12) =
++                                               "arm-none-eabi"
++          then
++             return "arm-eabi-";
++          else
++             return "arm-elf-";
++          end if;
+        else
+           return "";
+        end if;
