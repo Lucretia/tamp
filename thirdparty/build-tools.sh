@@ -4,6 +4,12 @@
 ################################################################################
 #!/bin/sh
 
+################################################################################
+# Logs from various stages of the build process are placed in the build/logs
+# directory and has a standardised naming, i.e.
+#   [description]-[config|make|install].txt
+################################################################################
+
 if [ ! -f ./config.inc ]
 then
     echo "Error! No config.inc"
@@ -40,10 +46,15 @@ function check_error()
     fi
 }
 
-# $1 = Target.
-# $2 = Any extra configure parameters.
-function build_toolchain()
+function build_native_toolchain()
 {
+    if [ ! -d logs ]
+    then
+	mkdir -p logs
+    fi
+
+    LOGS=`pwd`/logs
+
     if [ ! -d native/gmp ]
     then
 	mkdir -p native/gmp
@@ -64,6 +75,151 @@ function build_toolchain()
 	mkdir -p native/gcc
     fi
 
+    # Build gmp
+    cd native/gmp
+
+    if [ ! -f .config ]
+    then
+	echo "Configuring gmp..."
+	../../../src/gmp-$GMP_VERSION/configure \
+	    --prefix=$GCC_LIBS_PREFIX/gmp \
+	    --disable-shared \
+	    --enable-static &> $LOGS/native-gmp-config.txt
+
+	check_error .config
+    fi
+
+    if [ ! -f .make ]
+    then
+	echo "Building gmp..."
+	make $JOBS &> $LOGS/native-gmp-make.txt
+
+	check_error .make
+    fi
+
+    if [ ! -f .make-install ]
+    then
+	echo "Installing gmp..."
+	make install &> $LOGS/native-gmp-install.txt
+
+	check_error .make-install
+    fi
+
+    # Build MPFR
+    cd ../mpfr
+
+    if [ -f ../gmp/.make-install ]
+    then
+	if [ ! -f .config ]
+	then
+	    echo "Configuring mpfr..."
+	    ../../../src/mpfr-$MPFR_VERSION/configure \
+		--prefix=$GCC_LIBS_PREFIX/mpfr \
+		--with-gmp=$GCC_LIBS_PREFIX/gmp \
+		--disable-shared \
+		--enable-static &> $LOGS/native-mpfr-config.txt
+
+	    check_error .config
+	fi
+
+	if [ ! -f .make ]
+	then
+	    echo "Building mpfr..."
+	    make $JOBS &> $LOGS/native-mpfr-make.txt
+
+	    check_error .make
+	fi
+
+	if [ ! -f .make-install ]
+	then
+	    echo "Installing mpfr..."
+	    make install &> $LOGS/native-mpfr-install.txt
+
+	    check_error .make-install
+	fi
+    fi
+
+    # Build MPC
+    cd ../mpc
+
+    if [ -f ../mpfr/.make-install ]
+    then
+	if [ ! -f .config ]
+	then
+	    echo "Configuring mpc..."
+	    ../../../src/mpc-$MPC_VERSION/configure \
+		--prefix=$GCC_LIBS_PREFIX/mpc \
+		--with-gmp=$GCC_LIBS_PREFIX/gmp \
+		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
+		--disable-shared \
+		--enable-static &> $LOGS/native-mpc-config.txt
+
+	    check_error .config
+	fi
+
+	if [ ! -f .make ]
+	then
+	    echo "Building mpc..."
+	    make $JOBS &> $LOGS/native-mpc-make.txt
+
+	    check_error .make
+	fi
+
+	if [ ! -f .make-install ]
+	then
+	    echo "Installing mpc..."
+	    make install &> $LOGS/native-mpc-install.txt
+
+	    check_error .make-install
+	fi
+    fi
+
+    # Build the native GCC compiler.
+    cd ../gcc
+
+    if [ -f ../mpc/.make-install ]
+    then
+	if [ ! -f .config ]
+	then
+	    echo "Configuring native gcc..."
+	    ../../../src/gcc-$GCC_VERSION/configure \
+		--prefix=$PREFIX \
+		--enable-multilib \
+		--with-gnu-as \
+		--with-gnu-ld \
+		--enable-languages=c,ada \
+		--with-gmp=$GCC_LIBS_PREFIX/gmp \
+		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
+		--with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/native-gcc-config.txt
+
+	    check_error .config
+	fi
+
+	if [ ! -f .make ]
+	then
+	    echo "Building native gcc..."
+	    make $JOBS &> $LOGS/native-gcc-make.txt
+
+	    check_error .make
+	fi
+
+	if [ ! -f .make-install ]
+	then
+	    echo "Installing native gcc..."
+	    make install &> $LOGS/native-gcc-install.txt
+
+	    check_error .make-install
+	fi
+    fi
+
+    # Get back to the build directory.
+    cd ../..
+}
+
+# $1 = Target.
+# $2 = Any extra configure parameters.
+function build_toolchain()
+{
     if [ ! -d $1/binutils ]
     then
 	mkdir -p $1/binutils
@@ -84,147 +240,10 @@ function build_toolchain()
 	mkdir -p $1/gcc2
     fi
 
-    # Build gmp
-    cd native/gmp
-
-    if [ ! -f .config ]
-    then
-	echo "Configuring gmp..."
-	../../../src/gmp-$GMP_VERSION/configure \
-	    --prefix=$GCC_LIBS_PREFIX/gmp \
-	    --disable-shared \
-	    --enable-static &> log.config.txt
-
-	check_error .config
-    fi
-
-    if [ ! -f .make ]
-    then
-	echo "Building gmp..."
-	make $JOBS &> log.make.txt
-
-	check_error .make
-    fi
-
-    if [ ! -f .make-install ]
-    then
-	echo "Installing gmp..."
-	make install &> log.make.install.txt
-
-	check_error .make-install
-    fi
-
-    # Build MPFR
-    cd ../mpfr
-
-    if [ -f ../gmp/.make-install ]
-    then
-	if [ ! -f .config ]
-	then
-	    echo "Configuring mpfr..."
-	    ../../../src/mpfr-$MPFR_VERSION/configure \
-		--prefix=$GCC_LIBS_PREFIX/mpfr \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--disable-shared \
-		--enable-static &> log.config.txt
-
-	    check_error .config
-	fi
-
-	if [ ! -f .make ]
-	then
-	    echo "Building mpfr..."
-	    make $JOBS &> log.make.txt
-
-	    check_error .make
-	fi
-
-	if [ ! -f .make-install ]
-	then
-	    echo "Installing mpfr..."
-	    make install &> log.make.install.txt
-
-	    check_error .make-install
-	fi
-    fi
-
-    # Build MPC
-    cd ../mpc
-
-    if [ -f ../mpfr/.make-install ]
-    then
-	if [ ! -f .config ]
-	then
-	    echo "Configuring mpc..."
-	    ../../../src/mpc-$MPC_VERSION/configure \
-		--prefix=$GCC_LIBS_PREFIX/mpc \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--disable-shared \
-		--enable-static &> log.config.txt
-
-	    check_error .config
-	fi
-
-	if [ ! -f .make ]
-	then
-	    echo "Building mpc..."
-	    make $JOBS &> log.make.txt
-
-	    check_error .make
-	fi
-
-	if [ ! -f .make-install ]
-	then
-	    echo "Installing mpc..."
-	    make install &> log.make.install.txt
-
-	    check_error .make-install
-	fi
-    fi
-
-    # Build the first pass GCC compiler.
-    cd ../gcc
-
-    if [ -f ../mpc/.make-install ]
-    then
-	if [ ! -f .config ]
-	then
-	    echo "Configuring native gcc..."
-	    ../../../src/gcc-$GCC_VERSION/configure \
-		--prefix=$PREFIX \
-		--enable-multilib \
-		--with-gnu-as \
-		--with-gnu-ld \
-		--enable-languages=c,ada \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--with-mpc=$GCC_LIBS_PREFIX/mpc &> log.config.txt
-
-	    check_error .config
-	fi
-
-	if [ ! -f .make ]
-	then
-	    echo "Building native gcc..."
-	    make $JOBS &> log.make.txt
-
-	    check_error .make
-	fi
-
-	if [ ! -f .make-install ]
-	then
-	    echo "Installing native gcc..."
-	    make install &> log.make.install.txt
-
-	    check_error .make-install
-	fi
-    fi
-
     export PATH=$PREFIX/bin:$PATH
 
     # Build binutils.
-    cd ../../$1/binutils
+    cd $1/binutils
 
     if [ -f ../../native/gcc/.make-install ]
     then
@@ -241,7 +260,7 @@ function build_toolchain()
 		--disable-threads \
 		--with-gcc \
 		--with-gnu-as \
-		--with-gnu-ld &> log.config.txt
+		--with-gnu-ld &> $LOGS/$1-binutils-config.txt
 
 	    check_error .config
 	fi
@@ -249,7 +268,7 @@ function build_toolchain()
 	if [ ! -f .make ]
 	then
 	    echo "Building binutils for $1..."
-	    make $JOBS &> log.make.txt
+	    make $JOBS &> $LOGS/$1-binutils-make.txt
 
 	    check_error .make
 	fi
@@ -257,139 +276,153 @@ function build_toolchain()
 	if [ ! -f .make-install ]
 	then
 	    echo "Installing binutils for $1..."
-	    make install &> log.make.install.txt
+	    make install &> $LOGS/$1-binutils-install.txt
 
 	    check_error .make-install
 	fi
-    fi
 
-    # Build the first pass GCC compiler (C only).
-    cd ../gcc1
+        # Build the first pass GCC compiler (C only).
+	cd ../gcc1
 
-    if [ -f ../binutils/.make-install ]
-    then
-	if [ ! -f .config ]
+	if [ -f ../binutils/.make-install ]
 	then
-	    echo "Configuring stage 1 gcc for $1..."
-	    ../../../src/gcc-$GCC_VERSION/configure \
-		--prefix=$PREFIX \
-		--target=$1 \
-		$2 \
-		--enable-multilib \
-		--with-newlib \
-		--disable-nls \
-		--disable-shared \
-		--disable-threads \
-		--with-gnu-as \
-		--with-gnu-ld \
-		--without-headers \
-		--enable-languages=c \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--with-mpc=$GCC_LIBS_PREFIX/mpc &> log.config.txt
+	    if [ ! -f .config ]
+	    then
+		echo "Configuring stage 1 gcc for $1..."
+		../../../src/gcc-$GCC_VERSION/configure \
+		    --prefix=$PREFIX \
+		    --target=$1 \
+		    $2 \
+		    --enable-multilib \
+		    --with-newlib \
+		    --disable-nls \
+		    --disable-shared \
+		    --disable-threads \
+		    --disable-lto \
+		    --with-gnu-as \
+		    --with-gnu-ld \
+		    --without-headers \
+		    --enable-languages=c \
+		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
+		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
+		    --with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/$1-stage-1-gcc-config.txt
 
-	    check_error .config
+		check_error .config
+	    fi
+
+	    if [ ! -f .make ]
+	    then
+		echo "Building stage 1 gcc for $1..."
+		make $JOBS all-gcc &> $LOGS/$1-stage-1-gcc-make.txt
+
+		check_error .make
+	    fi
+
+	    if [ ! -f .make-install ]
+	    then
+		echo "Installing stage 1 gcc for $1..."
+		make install-gcc &> $LOGS/$1-stage-1-gcc-install.txt
+
+		check_error .make-install
+	    fi
 	fi
 
-	if [ ! -f .make ]
-	then
-	    echo "Building stage 1 gcc for $1..."
-	    make $JOBS all-gcc &> log.make.txt
+        # Build Newlib.
+	cd ../newlib
 
-	    check_error .make
+	if [ -f ../gcc1/.make-install ]
+	then
+	    if [ ! -f .config ]
+	    then
+		echo "Configuring newlib for $1..."
+		../../../src/newlib-$NEWLIB_VERSION/configure \
+		    --prefix=$PREFIX \
+		    --target=$1 \
+		    $2 \
+		    --enable-multilib \
+		    --with-gnu-as \
+		    --with-gnu-ld \
+		    --disable-nls &> $LOGS/$1-newlib-config.txt
+
+		check_error .config
+	    fi
+
+	    if [ ! -f .make ]
+	    then
+		echo "Building newlib for $1..."
+		make $JOBS &> $LOGS/$1-newlib-make.txt
+
+		check_error .make
+	    fi
+
+	    if [ ! -f .make-install ]
+	    then
+		echo "Installing newlib for $1..."
+		make install &> $LOGS/$1-newlib-install.txt
+
+		check_error .make-install
+	    fi
 	fi
 
-	if [ ! -f .make-install ]
+        # Build the second pass GCC compiler (C & Ada).
+	cd ../gcc2
+
+	if [ -f ../newlib/.make-install ]
 	then
-	    echo "Installing stage 1 gcc for $1..."
-	    make install-gcc &> log.make.install.txt
+	    if [ ! -f .config ]
+	    then
+		echo "Configuring stage 2 gcc for $1..."
+		../../../src/gcc-$GCC_VERSION/configure \
+		    --prefix=$PREFIX \
+		    --target=$1 \
+		    $2 \
+		    --enable-multilib \
+		    --with-newlib \
+		    --with-headers=../../../src/newlib-$NEWLIB_VERSION/newlib/libc/include \
+		    --disable-nls \
+		    --disable-shared \
+		    --disable-threads \
+		    --disable-lto \
+		    --with-gnu-as \
+		    --with-gnu-ld \
+		    --enable-languages=c,ada \
+		    --disable-libssp \
+		    --disable-libada \
+		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
+		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
+		    --with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/$1-stage-2-gcc-config.txt
 
-	    check_error .make-install
+		check_error .config
+	    fi
+
+	    if [ ! -f .make ]
+	    then
+		echo "Building stage 2 gcc for $1..."
+		make $JOBS all-gcc &> $LOGS/$1-stage-2-gcc-make.txt
+
+		check_error .make
+	    fi
+
+	    if [ ! -f .make-gnattools ]
+	    then
+		echo "Building stage 2 gcc (gnattools) for $1..."
+		make $JOBS all-gnattools &> $LOGS/$1-stage-2-gcc-make-gnattools.txt
+
+		check_error .make-gnattools
+	    fi
+
+	    if [ ! -f .make-install ]
+	    then
+		echo "Installing stage 2 gcc for $1..."
+		make install-gcc &> $LOGS/$1-stage-2-gcc-install.txt
+
+		check_error .make-install
+	    fi
 	fi
-    fi
+    else
+	echo "Error! Native toolchain has not been built yet!"
 
-    # Build Newlib.
-    cd ../newlib
-
-    if [ -f ../gcc1/.make-install ]
-    then
-	if [ ! -f .config ]
-	then
-	    echo "Configuring newlib for $1..."
-	    ../../../src/newlib-$NEWLIB_VERSION/configure \
-		--prefix=$PREFIX \
-		--target=$1 \
-		$2 \
-		--enable-multilib \
-		--with-gnu-as \
-		--with-gnu-ld \
-		--disable-nls &> log.config.txt
-
-	    check_error .config
-	fi
-
-	if [ ! -f .make ]
-	then
-	    echo "Building newlib for $1..."
-	    make $JOBS &> log.make.txt
-
-	    check_error .make
-	fi
-
-	if [ ! -f .make-install ]
-	then
-	    echo "Installing newlib for $1..."
-	    make install &> log.make.install.txt
-
-	    check_error .make-install
-	fi
-    fi
-
-    # Build the second pass GCC compiler (C & Ada).
-    cd ../gcc2
-
-    if [ -f ../newlib/.make-install ]
-    then
-	if [ ! -f .config ]
-	then
-	    echo "Configuring stage 2 gcc for $1..."
-	    ../../../src/gcc-$GCC_VERSION/configure \
-		--prefix=$PREFIX \
-		--target=$1 \
-		$2 \
-		--enable-multilib \
-		--with-newlib \
-		--with-headers=../../../src/newlib-$NEWLIB_VERSION/newlib/libc/include \
-		--disable-nls \
-		--disable-shared \
-		--disable-threads \
-		--with-gnu-as \
-		--with-gnu-ld \
-		--enable-languages=c,ada \
-		--disable-libssp \
-		--disable-libada \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--with-mpc=$GCC_LIBS_PREFIX/mpc &> log.config.txt
-
-	    check_error .config
-	fi
-
-	if [ ! -f .make ]
-	then
-	    echo "Building stage 2 gcc for $1..."
-	    make $JOBS &> log.make.txt
-
-	    check_error .make
-	fi
-
-	if [ ! -f .make-install ]
-	then
-	    echo "Installing stage 2 gcc for $1..."
-	    make install &> log.make.install.txt
-
-	    check_error .make-install
-	fi
+	exit 2
     fi
 
     # Back to the build directory
@@ -412,7 +445,7 @@ function build_u_boot()
 	echo "Configuring and building U-Boot for $1..."
 	make O=../../build/$1/u-boot distclean
 	make O=../../build/$1/u-boot omap3_beagle_config ARCH=arm CROSS_COMPILE=$1-
-	make O=../../build/$1/u-boot all ARCH=arm CROSS_COMPILE=$1- &> ../../build/$1/u-boot/log.make.txt
+	make O=../../build/$1/u-boot all ARCH=arm CROSS_COMPILE=$1- &> $LOGS/$1-u-boot-make.txt
 
 	check_error .make
     fi
@@ -449,13 +482,14 @@ fi
 
 cd build
 
+build_native_toolchain
 build_toolchain arm-none-eabi --enable-interwork
 #build_toolchain i386-elf
 #build_toolchain mips-elf
 
 #build_u_boot arm-none-eabi
 
-install_wrappers arm-none-eabi $PREFIX/bin
+#install_wrappers arm-none-eabi $PREFIX/bin
 
 # Get back to the thirdparty directory.
 cd $TOP
