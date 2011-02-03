@@ -10,7 +10,7 @@
 ################################################################################
 # Installation directory
 ################################################################################
-export PREFIX=/opt/tamp-cross
+export PREFIX=$HOME/opt/tamp-cross
 
 ################################################################################
 # GMP, MPFR, MPC static lib installation directory
@@ -42,3 +42,5 @@ export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
 
 export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
+
+export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
