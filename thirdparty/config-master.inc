@@ -29,12 +29,14 @@ export GMP_VERSION=5.0.1
 export MPFR_VERSION=3.0.0
 export MPC_VERSION=0.8.2
 export BINUTILS_VERSION=2.21
-export GCC_VERSION=4.5.2
+#export GCC_VERSION=4.5.2
+export GCC_VERSION=4.6-20110129
 #export U_BOOT_VERSION=1.3.4
 export NEWLIB_VERSION=1.19.0
 
 export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
-export GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION
+#export GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION
+export GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/LATEST-4.6
 export GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
 export MPFR_MIRROR=http://www.mpfr.org/mpfr-$MPFR_VERSION
 export MPC_MIRROR=http://www.multiprecision.org/mpc/download
