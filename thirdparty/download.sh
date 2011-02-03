@@ -152,17 +152,21 @@ then
     tar -xjpf ../downloads/gcc-ada-$GCC_VERSION.tar.bz2
 fi
 
-# cd gcc-$GCC_VERSION
+cd gcc-$GCC_VERSION
 
-# if [ ! -f .patched ]
-# then
-#     echo "  >> Applying gcc patches..."
-#     patch -p1 < ../../patches/gcc-gnattools.patch
+if [ ! -f .patched ]
+then
+    echo "  >> Applying gcc patches..."
+    patch -p1 < ../../patches/gcc-4.6/gnattools.patch
 
-#     check_error .patched
-# fi
+    check_error
 
-# cd ..
+    patch -p1 < ../../patches/gcc-4.6/gnattools2.patch
+
+    check_error .patched
+fi
+
+cd ..
 
 if [ ! -d gmp-$GMP_VERSION ]
 then
