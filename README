@@ -1,7 +1,7 @@
                     The Ada Microkernel Project (TAMP)
 
 Legal
------        
+-----
 
 Copright © 2011, Luke A. Guest & Dave Rees, all rights reserved.
 
@@ -10,7 +10,7 @@ development.
 
 
 Introduction
------------- 
+------------
 
 The aim of this project is to create a simple microkernel using Ada as the
 implementation lanaguage.
@@ -23,3 +23,13 @@ command:
 This will install the various tools required to the directories of your choice.
 On my x86-64 Ubuntu install, this process takes approximately 3GB of disk space.
 
+The toolchain has bee built on the following machines:
+
+* Ubuntu 10.4 with GNAT/GCC 4.4.3
+
+Dependencies
+------------
+
+PPL requires that you have texlive-math-extra installed on your machine so that
+it can generate the documentation, I haven't found a way of disabling the
+generation of the docs yet.
