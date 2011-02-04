@@ -278,5 +278,46 @@ else
     echo "  >> Already have u-boot from Denx"
 fi
 
+#################################################################################
+# Download Cloog.
+#################################################################################
+if [ ! -d cloog ]
+then
+    echo "  >> Downloading cloog..."
+    git clone git://repo.or.cz/cloog.git
+
+    check_error
+
+    cd cloog
+    ./get_submodules.sh
+    ./autogen.sh
+
+    check_error
+
+    cd ..
+else
+    echo "  >> Already have cloog"
+fi
+
+#################################################################################
+# Download PPL.
+#################################################################################
+if [ ! -d ppl ]
+then
+    echo "  >> Downloading ppl..."
+    git clone git://git.cs.unipr.it/ppl/ppl.git
+
+    check_error
+
+    cd ppl
+    ./autoreconf
+
+    check_error
+
+    cd ..
+else
+    echo "  >> Already have ppl"
+fi
+
 # Get back to the src directory.
 cd ..
