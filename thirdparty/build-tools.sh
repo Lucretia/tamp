@@ -93,7 +93,7 @@ function build_native_toolchain()
     then
 	echo "Configuring gmp..."
 	../../../src/gmp-$GMP_VERSION/configure \
-	    --prefix=$GCC_LIBS_PREFIX/gmp \
+	    --prefix=$GCC_LIBS_PREFIX\
 	    --disable-shared \
 	    --enable-static &> $LOGS/native-gmp-config.txt
 
@@ -125,8 +125,8 @@ function build_native_toolchain()
 	then
 	    echo "Configuring mpfr..."
 	    ../../../src/mpfr-$MPFR_VERSION/configure \
-		--prefix=$GCC_LIBS_PREFIX/mpfr \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
+		--prefix=$GCC_LIBS_PREFIX \
+		--with-gmp=$GCC_LIBS_PREFIX \
 		--disable-shared \
 		--enable-static &> $LOGS/native-mpfr-config.txt
 
@@ -159,9 +159,9 @@ function build_native_toolchain()
 	then
 	    echo "Configuring mpc..."
 	    ../../../src/mpc-$MPC_VERSION/configure \
-		--prefix=$GCC_LIBS_PREFIX/mpc \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
+		--prefix=$GCC_LIBS_PREFIX \
+		--with-gmp=$GCC_LIBS_PREFIX \
+		--with-mpfr=$GCC_LIBS_PREFIX \
 		--disable-shared \
 		--enable-static &> $LOGS/native-mpc-config.txt
 
@@ -194,8 +194,8 @@ function build_native_toolchain()
 	then
 	    echo "Configuring cloog..."
 	    ../../../src/cloog/configure \
-		--prefix=$GCC_LIBS_PREFIX/cloog \
-		--with-gmp-prefix=$GCC_LIBS_PREFIX/gmp \
+		--prefix=$GCC_LIBS_PREFIX \
+		--with-gmp-prefix=$GCC_LIBS_PREFIX \
 		--disable-shared &> $LOGS/native-cloog-config.txt
 
 	    check_error .config
@@ -227,8 +227,8 @@ function build_native_toolchain()
 	then
 	    echo "Configuring ppl..."
 	    ../../../src/ppl/configure \
-		--prefix=$GCC_LIBS_PREFIX/ppl \
-		--with-gmp-prefix=$GCC_LIBS_PREFIX/gmp \
+		--prefix=$GCC_LIBS_PREFIX \
+		--with-gmp-prefix=$GCC_LIBS_PREFIX \
 		--disable-shared &> $LOGS/native-ppl-config.txt
 
 	    check_error .config
@@ -265,11 +265,11 @@ function build_native_toolchain()
 		--with-gnu-as \
 		--with-gnu-ld \
 		--enable-languages=c,ada \
-		--with-gmp=$GCC_LIBS_PREFIX/gmp \
-		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--with-mpc=$GCC_LIBS_PREFIX/mpc \
-		--with-ppl=$GCC_LIBS_PREFIX/ppl \
-		--with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/native-gcc-config.txt
+		--with-gmp=$GCC_LIBS_PREFIX \
+		--with-mpfr=$GCC_LIBS_PREFIX \
+		--with-mpc=$GCC_LIBS_PREFIX \
+		--with-ppl=$GCC_LIBS_PREFIX \
+		--with-cloog=$GCC_LIBS_PREFIX &> $LOGS/native-gcc-config.txt
 
 	    check_error .config
 	fi
@@ -382,11 +382,11 @@ function build_toolchain()
 		    --with-gnu-ld \
 		    --without-headers \
 		    --enable-languages=c \
-		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
-		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		    --with-mpc=$GCC_LIBS_PREFIX/mpc \
-		    --with-ppl=$GCC_LIBS_PREFIX/ppl \
-		    --with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/$1-stage-1-gcc-config.txt
+		    --with-gmp=$GCC_LIBS_PREFIX \
+		    --with-mpfr=$GCC_LIBS_PREFIX \
+		    --with-mpc=$GCC_LIBS_PREFIX \
+		    --with-ppl=$GCC_LIBS_PREFIX \
+		    --with-cloog=$GCC_LIBS_PREFIX &> $LOGS/$1-stage-1-gcc-config.txt
 
 		check_error .config
 	    fi
@@ -469,11 +469,11 @@ function build_toolchain()
 		    --enable-languages=c,ada \
 		    --disable-libssp \
 		    --disable-libada \
-		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
-		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		    --with-mpc=$GCC_LIBS_PREFIX/mpc \
-		    --with-ppl=$GCC_LIBS_PREFIX/ppl \
-		    --with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/$1-stage-2-gcc-config.txt
+		    --with-gmp=$GCC_LIBS_PREFIX \
+		    --with-mpfr=$GCC_LIBS_PREFIX \
+		    --with-mpc=$GCC_LIBS_PREFIX \
+		    --with-ppl=$GCC_LIBS_PREFIX \
+		    --with-cloog=$GCC_LIBS_PREFIX &> $LOGS/$1-stage-2-gcc-config.txt
 
 		check_error .config
 	    fi
