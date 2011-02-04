@@ -319,7 +319,7 @@ then
     check_error_exit
 
     cd ppl
-    ./autoreconf
+    autoreconf
 
     check_error_exit
 
