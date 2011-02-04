@@ -4,6 +4,15 @@
 ################################################################################
 #!/bin/bash
 
+function check_error_exit()
+{
+    if [ $? != 0 ]
+    then
+	echo "** Error - Something went wrong!"
+	exit 2;
+    fi
+}
+
 function check_error()
 {
     if [ $? != 0 ]
@@ -51,7 +60,7 @@ then
     echo "  >> Downloading binutils-$BINUTILS_VERSION..."
     wget $BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have binutils-$BINUTILS_VERSION"
 fi
@@ -61,7 +70,7 @@ then
     echo "  >> Downloading GCC-core-$GCC_VERSION..."
     wget $GCC_MIRROR/gcc-core-$GCC_VERSION.tar.bz2
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have GCC-core-$GCC_VERSION"
 fi
@@ -71,7 +80,7 @@ then
     echo "  >> Downloading GCC-ada-$GCC_VERSION..."
     wget $GCC_MIRROR/gcc-ada-$GCC_VERSION.tar.bz2
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have GCC-ada-$GCC_VERSION"
 fi
@@ -81,7 +90,7 @@ then
     echo "  >> Downloading gmp-$GMP_VERSION..."
     wget $GMP_MIRROR/gmp-$GMP_VERSION.tar.gz
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have gmp-$GMP_VERSION"
 fi
@@ -91,7 +100,7 @@ then
     echo "  >> Downloading mpfr-$MPFR_VERSION..."
     wget $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have mpfr-$MPFR_VERSION"
 fi
@@ -101,7 +110,7 @@ then
     echo "  >> Downloading mpc-$MPC_VERSION..."
     wget $MPC_MIRROR/mpc-$MPC_VERSION.tar.gz
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have mpc-$MPC_VERSION"
 fi
@@ -111,7 +120,7 @@ then
     echo "  >> newlib-$NEWLIB_VERSION.tar.gz..."
     wget $NEWLIB_MIRROR/newlib-$NEWLIB_VERSION.tar.gz
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have newlib-$NEWLIB_VERSION.tar.gz"
 fi
@@ -121,7 +130,7 @@ fi
 #     echo "  >> Downloading u-boot-$U_BOOT_VERSION.tar.bz2..."
 #     wget $U_BOOT_MIRROR/u-boot-$U_BOOT_VERSION.tar.bz2
 
-#     check_error
+#     check_error_exit
 # else
 #     echo "  >> Already have u-boot-$U_BOOT_VERSION.tar.bz2"
 # fi
@@ -159,7 +168,7 @@ then
     echo "  >> Applying gcc patches..."
     patch -p1 < ../../patches/gcc-4.6/gnattools.patch
 
-    check_error
+    check_error_exit
 
     patch -p1 < ../../patches/gcc-4.6/gnattools2.patch
 
@@ -227,7 +236,7 @@ then
     echo "  >> Downloading GRUB 2 from CVS..."
     cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/grub co grub2
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have GRUB 2 from CVS"
 fi
@@ -240,7 +249,7 @@ then
     echo "  >> Downloading qemu from Gitorius..."
     git clone git://gitorious.org/qemu-maemo/qemu.git
 
-    check_error
+    check_error_exit
 else
     echo "  >> Already have qemu from Gitorius"
 fi
@@ -265,13 +274,13 @@ then
     echo "  >> Downloading u-boot from Denx..."
     # git clone git://git.denx.de/u-boot.git
 
-    # check_error
+    # check_error_exit
 
     echo "  >> Downloading u-boot for omap3 from Denx..."
     cd u-boot
     # git checkout --track -b omap3 origin/master
 
-    # check_error
+    # check_error_exit
 
     cd ..
 else
@@ -286,13 +295,13 @@ then
     echo "  >> Downloading cloog..."
     git clone git://repo.or.cz/cloog.git
 
-    check_error
+    check_error_exit
 
     cd cloog
     ./get_submodules.sh
     ./autogen.sh
 
-    check_error
+    check_error_exit
 
     cd ..
 else
@@ -307,12 +316,12 @@ then
     echo "  >> Downloading ppl..."
     git clone git://git.cs.unipr.it/ppl/ppl.git
 
-    check_error
+    check_error_exit
 
     cd ppl
     ./autoreconf
 
-    check_error
+    check_error_exit
 
     cd ..
 else
