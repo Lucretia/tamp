@@ -23,6 +23,7 @@ fi
 source ./config.inc
 
 echo "Installation dir: " $PREFIX
+echo "Support libs dir: " $GCC_LIBS_PREFIX
 echo "Parallelism     : " $JOBS
 echo "GMP Version     : " $GMP_VERSION
 echo "MPFR Version    : " $MPFR_VERSION
@@ -68,6 +69,16 @@ function build_native_toolchain()
     if [ ! -d native/mpc ]
     then
 	mkdir -p native/mpc
+    fi
+
+    if [ ! -d native/cloog ]
+    then
+	mkdir -p native/cloog
+    fi
+
+    if [ ! -d native/ppl ]
+    then
+	mkdir -p native/ppl
     fi
 
     if [ ! -d native/gcc ]
@@ -174,10 +185,76 @@ function build_native_toolchain()
 	fi
     fi
 
+    # Build Cloog
+    cd ../cloog
+
+    if [ -f ../mpc/.make-install ]
+    then
+	if [ ! -f .config ]
+	then
+	    echo "Configuring cloog..."
+	    ../../../src/cloog/configure \
+		--prefix=$GCC_LIBS_PREFIX/cloog \
+		--with-gmp-prefix=$GCC_LIBS_PREFIX/gmp \
+		--disable-shared &> $LOGS/native-cloog-config.txt
+
+	    check_error .config
+	fi
+
+	if [ ! -f .make ]
+	then
+	    echo "Building cloog..."
+	    make $JOBS &> $LOGS/native-cloog-make.txt
+
+	    check_error .make
+	fi
+
+	if [ ! -f .make-install ]
+	then
+	    echo "Installing cloog..."
+	    make install &> $LOGS/native-cloog-install.txt
+
+	    check_error .make-install
+	fi
+    fi
+
+    # Build PPL
+    cd ../ppl
+
+    if [ -f ../cloog/.make-install ]
+    then
+	if [ ! -f .config ]
+	then
+	    echo "Configuring ppl..."
+	    ../../../src/ppl/configure \
+		--prefix=$GCC_LIBS_PREFIX/ppl \
+		--with-gmp-prefix=$GCC_LIBS_PREFIX/gmp \
+		--disable-shared &> $LOGS/native-ppl-config.txt
+
+	    check_error .config
+	fi
+
+	if [ ! -f .make ]
+	then
+	    echo "Building ppl..."
+	    make $JOBS &> $LOGS/native-ppl-make.txt
+
+	    check_error .make
+	fi
+
+	if [ ! -f .make-install ]
+	then
+	    echo "Installing ppl..."
+	    make install &> $LOGS/native-ppl-install.txt
+
+	    check_error .make-install
+	fi
+    fi
+
     # Build the native GCC compiler.
     cd ../gcc
 
-    if [ -f ../mpc/.make-install ]
+    if [ -f ../ppl/.make-install ]
     then
 	if [ ! -f .config ]
 	then
@@ -190,7 +267,9 @@ function build_native_toolchain()
 		--enable-languages=c,ada \
 		--with-gmp=$GCC_LIBS_PREFIX/gmp \
 		--with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		--with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/native-gcc-config.txt
+		--with-mpc=$GCC_LIBS_PREFIX/mpc \
+		--with-ppl=$GCC_LIBS_PREFIX/ppl \
+		--with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/native-gcc-config.txt
 
 	    check_error .config
 	fi
@@ -305,7 +384,9 @@ function build_toolchain()
 		    --enable-languages=c \
 		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
 		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		    --with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/$1-stage-1-gcc-config.txt
+		    --with-mpc=$GCC_LIBS_PREFIX/mpc \
+		    --with-ppl=$GCC_LIBS_PREFIX/ppl \
+		    --with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/$1-stage-1-gcc-config.txt
 
 		check_error .config
 	    fi
@@ -390,7 +471,9 @@ function build_toolchain()
 		    --disable-libada \
 		    --with-gmp=$GCC_LIBS_PREFIX/gmp \
 		    --with-mpfr=$GCC_LIBS_PREFIX/mpfr \
-		    --with-mpc=$GCC_LIBS_PREFIX/mpc &> $LOGS/$1-stage-2-gcc-config.txt
+		    --with-mpc=$GCC_LIBS_PREFIX/mpc \
+		    --with-ppl=$GCC_LIBS_PREFIX/ppl \
+		    --with-cloog=$GCC_LIBS_PREFIX/cloog &> $LOGS/$1-stage-2-gcc-config.txt
 
 		check_error .config
 	    fi
