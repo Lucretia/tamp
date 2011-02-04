@@ -15,7 +15,7 @@ export PREFIX=$HOME/opt/tamp-cross
 ################################################################################
 # GMP, MPFR, MPC static lib installation directory
 ################################################################################
-export GCC_LIBS_PREFIX=$HOME/opt/gcc-4.5.2-maths
+export GCC_LIBS_PREFIX=$HOME/opt/tamp-support-libs
 
 ################################################################################
 # How many jobs do you want to have going during the build?
