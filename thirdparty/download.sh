@@ -1,6 +1,8 @@
 ################################################################################
-# download.sh
-# Luke A. Guest (C) 2011
+# Filename          # download.sh
+# Purpose:          # Downloads source components required for TAMP toolchain
+# Description:      # Used by build-tools.sh (not run directly)
+# Copyright:        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/bash
 
@@ -99,6 +101,10 @@ if [ ! -f mpfr-$MPFR_VERSION.tar.bz2 ]
 then
     echo "  >> Downloading mpfr-$MPFR_VERSION..."
     wget $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
+    
+    echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
+    wget $MPFR_PATCHES
+    mv allpatches ../patches/mpfr-$MPFR_VERSION-allpatches.patch
 
     check_error_exit
 else
@@ -134,9 +140,6 @@ fi
 # else
 #     echo "  >> Already have u-boot-$U_BOOT_VERSION.tar.bz2"
 # fi
-
-# TODO: Download and apply patches to other packages.
-# mpfr: patch -N -Z -p1 < allpatches
 
 cd ../src
 
@@ -188,6 +191,19 @@ then
     echo "  >> Unpacking mpfr-$MPFR_VERSION.tar.bz2..."
     tar -xjpf ../downloads/mpfr-$MPFR_VERSION.tar.bz2
 fi
+
+cd mpfr-$MPFR_VERSION
+
+if [ ! -f .patched ]
+then
+    echo "  >> Applying mpfr patches..."
+    patch -N -Z -p1 < ../../patches/mpfr-$MPFR_VERSION-allpatches.patch
+
+    check_error_exit
+    check_error .patched
+fi
+
+cd ..
 
 if [ ! -d mpc-$MPC_VERSION ]
 then
@@ -271,18 +287,18 @@ cd ..
 #################################################################################
 if [ ! -d u-boot ]
 then
-    echo "  >> Downloading u-boot from Denx..."
+    #echo "  >> Downloading u-boot from Denx..."
     # git clone git://git.denx.de/u-boot.git
 
     # check_error_exit
 
-    echo "  >> Downloading u-boot for omap3 from Denx..."
-    cd u-boot
+    #echo "  >> Downloading u-boot for omap3 from Denx..."
+    #cd u-boot
     # git checkout --track -b omap3 origin/master
 
     # check_error_exit
 
-    cd ..
+    #cd ..
 else
     echo "  >> Already have u-boot from Denx"
 fi
