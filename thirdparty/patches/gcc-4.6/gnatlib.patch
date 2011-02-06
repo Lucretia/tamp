@@ -1,0 +1,23 @@
+*** gcc/configure.orig	2011-02-06 01:34:31.000000000 +0000
+--- gcc/configure	2011-02-06 01:34:51.000000000 +0000
+***************
+*** 3036,3044 ****
+    ENABLE_LIBADA=yes
+  fi
+  
+! if test "${ENABLE_LIBADA}" != "yes" ; then
+!   noconfigdirs="$noconfigdirs gnattools"
+! fi
+  
+  # Check whether --enable-libssp was given.
+  if test "${enable_libssp+set}" = set; then :
+--- 3036,3044 ----
+    ENABLE_LIBADA=yes
+  fi
+  
+! #if test "${ENABLE_LIBADA}" != "yes" ; then
+! #  noconfigdirs="$noconfigdirs gnattools"
+! #fi
+  
+  # Check whether --enable-libssp was given.
+  if test "${enable_libssp+set}" = set; then :
