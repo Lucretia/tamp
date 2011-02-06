@@ -164,14 +164,6 @@ then
 
     check_error_exit
 
-    echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
-    wget $MPFR_PATCHES
-
-    check_error_exit
-
-    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
-
-    check_error_exit
 else
     echo "  >> Already have mpfr-$MPFR_VERSION"
 fi
@@ -259,6 +251,15 @@ cd mpfr-$MPFR_VERSION
 
 if [ ! -f .patched ]
 then
+    echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
+    wget $MPFR_PATCHES
+
+    check_error_exit
+
+    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
+
+    check_error_exit
+
     echo "  >> Applying mpfr patches..."
     patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
 
