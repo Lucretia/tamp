@@ -35,25 +35,62 @@ function check_for_spark()
     fi
 }
 
+function apply_gcc_patches()
+{
+    if [ ! -f .patched ]
+    then
+	PATCHES="gnattools.patch gnattools2.patch"
+
+	echo "  >> Applying gcc patches..."
+	for p in $PATCHES
+	do
+	    patch -p1 < ../../patches/gcc-4.6/$p
+
+	    check_error_exit
+	done
+    fi
+}
+
+function create_gcc_symlinks()
+{
+    if [ ! -h gmp ]
+    then
+	echo "  >> Creating symbolic link from gcc source to gmp..."
+	ln -s $SRC/gmp-$GMP_VERSION gmp
+    fi
+
+    if [ ! -h mpfr ]
+    then
+	echo "  >> Creating symbolic link from gcc source to mpfr..."
+	ln -s $SRC/mpfr-$MPFR_VERSION mpfr
+    fi
+
+    if [ ! -h mpc ]
+    then
+	echo "  >> Creating symbolic link from gcc source to mpc..."
+	ln -s $SRC/mpc-$MPC_VERSION mpc
+    fi
+}
+
 # Start the script.
 echo "Downloading required packages..."
 
-if [ ! -d src ]
-then
-    mkdir -p src
-fi
+DIRS="src downloads"
 
-if [ ! -d downloads ]
-then
-    mkdir -p downloads
-fi
+for d in $DIRS
+do
+    if [ ! -d $d ]
+    then
+	mkdir -p $d
+    fi
+done
 
 #################################################################################
 # Download the archives.
 #################################################################################
-cd downloads
+cd $TOP/downloads
 
-check_for_spark
+#check_for_spark
 
 if [ ! -f binutils-$BINUTILS_VERSION.tar.bz2 ]
 then
@@ -65,24 +102,47 @@ else
     echo "  >> Already have binutils-$BINUTILS_VERSION"
 fi
 
-if [ ! -f gcc-core-$GCC_VERSION.tar.bz2 ]
+if [ $GCC_FROM_REPO != "yes" ]
 then
-    echo "  >> Downloading GCC-core-$GCC_VERSION..."
-    wget $GCC_MIRROR/gcc-core-$GCC_VERSION.tar.bz2
+    if [ ! -f gcc-core-$GCC_VERSION.tar.bz2 ]
+    then
+	echo "  >> Downloading GCC-core-$GCC_VERSION..."
+	wget $GCC_MIRROR/gcc-core-$GCC_VERSION.tar.bz2
 
-    check_error_exit
-else
-    echo "  >> Already have GCC-core-$GCC_VERSION"
-fi
+	check_error_exit
+    else
+	echo "  >> Already have GCC-core-$GCC_VERSION"
+    fi
 
-if [ ! -f gcc-ada-$GCC_VERSION.tar.bz2 ]
-then
-    echo "  >> Downloading GCC-ada-$GCC_VERSION..."
-    wget $GCC_MIRROR/gcc-ada-$GCC_VERSION.tar.bz2
+    if [ ! -f gcc-ada-$GCC_VERSION.tar.bz2 ]
+    then
+	echo "  >> Downloading GCC-ada-$GCC_VERSION..."
+	wget $GCC_MIRROR/gcc-ada-$GCC_VERSION.tar.bz2
 
-    check_error_exit
-else
-    echo "  >> Already have GCC-ada-$GCC_VERSION"
+	check_error_exit
+    else
+	echo "  >> Already have GCC-ada-$GCC_VERSION"
+    fi
+
+# if [ ! -f gcc-g++-$GCC_VERSION.tar.bz2 ]
+# then
+#     echo "  >> Downloading GCC-g++-$GCC_VERSION..."
+#     wget $GCC_MIRROR/gcc-g++-$GCC_VERSION.tar.bz2
+
+#     check_error_exit
+# else
+#     echo "  >> Already have GCC-g++-$GCC_VERSION"
+# fi
+
+    if [ ! -f gcc-testsuite-$GCC_VERSION.tar.bz2 ]
+    then
+	echo "  >> Downloading GCC-testsuite-$GCC_VERSION..."
+	wget $GCC_MIRROR/gcc-testsuite-$GCC_VERSION.tar.bz2
+
+	check_error_exit
+    else
+	echo "  >> Already have GCC-testsuite-$GCC_VERSION"
+    fi
 fi
 
 if [ ! -f gmp-$GMP_VERSION.tar.gz ]
@@ -125,6 +185,26 @@ else
     echo "  >> Already have newlib-$NEWLIB_VERSION.tar.gz"
 fi
 
+# if [ ! -f ppl-$PPL_VERSION.tar.gz ]
+# then
+#     echo "  >> ppl-$PPL_VERSION.tar.gz..."
+#     wget $PPL_MIRROR/ppl-$PPL_VERSION.tar.gz
+
+#     check_error_exit
+# else
+#     echo "  >> Already have ppl-$PPL_VERSION.tar.gz"
+# fi
+
+# if [ ! -f cloog-ppl-$CLOOG_PPL_VERSION.tar.gz ]
+# then
+#     echo "  >> cloog-ppl-$CLOOG_PPL_VERSION.tar.gz..."
+#     wget $CLOOG_PPL_MIRROR/cloog-ppl-$CLOOG_PPL_VERSION.tar.gz
+
+#     check_error_exit
+# else
+#     echo "  >> Already have cloog-ppl-$CLOOG_PPL_VERSION.tar.gz"
+# fi
+
 # if [ ! -f u-boot-$U_BOOT_VERSION.tar.bz2 ]
 # then
 #     echo "  >> Downloading u-boot-$U_BOOT_VERSION.tar.bz2..."
@@ -138,7 +218,7 @@ fi
 # TODO: Download and apply patches to other packages.
 # mpfr: patch -N -Z -p1 < allpatches
 
-cd ../src
+cd $SRC
 
 #################################################################################
 # Unpack the downloaded archives.
@@ -147,58 +227,118 @@ if [ ! -d binutils-$BINUTILS_VERSION ]
 then
     echo "  >> Unpacking binutils-$BINUTILS_VERSION.tar.bz2..."
     tar -xjpf ../downloads/binutils-$BINUTILS_VERSION.tar.bz2
-fi
-
-if [ ! -d gcc-$GCC_VERSION ]
-then
-    echo "  >> Unpacking gcc-core-$GCC_VERSION.tar.bz2..."
-    tar -xjpf ../downloads/gcc-core-$GCC_VERSION.tar.bz2
-fi
-
-if [ ! -d gcc-$GCC_VERSION/gcc/ada ]
-then
-    echo "  >> Unpacking gcc-ada-$GCC_VERSION.tar.bz2..."
-    tar -xjpf ../downloads/gcc-ada-$GCC_VERSION.tar.bz2
-fi
-
-cd gcc-$GCC_VERSION
-
-if [ ! -f .patched ]
-then
-    echo "  >> Applying gcc patches..."
-    patch -p1 < ../../patches/gcc-4.6/gnattools.patch
 
     check_error_exit
-
-    patch -p1 < ../../patches/gcc-4.6/gnattools2.patch
-
-    check_error .patched
 fi
-
-cd ..
 
 if [ ! -d gmp-$GMP_VERSION ]
 then
     echo "  >> Unpacking gmp-$GMP_VERSION.tar.gz..."
     tar -xzpf ../downloads/gmp-$GMP_VERSION.tar.gz
+
+    check_error_exit
 fi
 
 if [ ! -d mpfr-$MPFR_VERSION ]
 then
     echo "  >> Unpacking mpfr-$MPFR_VERSION.tar.bz2..."
     tar -xjpf ../downloads/mpfr-$MPFR_VERSION.tar.bz2
+
+    check_error_exit
 fi
 
 if [ ! -d mpc-$MPC_VERSION ]
 then
     echo "  >> Unpacking mpc-$MPC_VERSION.tar.gz..."
     tar -xzpf ../downloads/mpc-$MPC_VERSION.tar.gz
+
+    check_error_exit
 fi
 
 if [ ! -d newlib-$NEWLIB_VERSION ]
 then
     echo "  >> Unpacking newlib-$NEWLIB_VERSION.tar.gz..."
     tar -xzpf ../downloads/newlib-$NEWLIB_VERSION.tar.gz
+
+    check_error_exit
+fi
+
+# if [ ! -d ppl-$PPL_VERSION ]
+# then
+#     echo "  >> Unpacking ppl-$PPL_VERSION.tar.gz..."
+#     tar -xzpf ../downloads/ppl-$PPL_VERSION.tar.gz
+
+#     check_error_exit
+# fi
+
+# if [ ! -d cloog-ppl-$CLOOG_PPL_VERSION ]
+# then
+#     echo "  >> Unpacking cloog-ppl-$CLOOG_PPL_VERSION.tar.gz..."
+#     tar -xzpf ../downloads/cloog-ppl-$CLOOG_PPL_VERSION.tar.gz
+
+#     check_error_exit
+
+#     cd cloog-ppl-$CLOOG_PPL_VERSION
+#     ./autogen.sh
+
+#     check_error_exit
+# fi
+
+if [ $GCC_FROM_REPO = "yes" ]
+then
+    if [ ! -d $GCC_DIR ]
+    then
+	echo "  >> Downloading GCC from SVN..."
+	svn checkout -q $GCC_REPO gcc
+
+	check_error_exit
+
+	cd $GCC_DIR
+	svn update -q
+
+	check_error_exit
+
+	apply_gcc_patches
+	create_gcc_symlinks
+	cd $SRC
+    fi
+else
+    if [ ! -d $GCC_DIR ]
+    then
+	echo "  >> Unpacking gcc-core-$GCC_VERSION.tar.bz2..."
+	tar -xjpf ../downloads/gcc-core-$GCC_VERSION.tar.bz2
+
+	check_error_exit
+    fi
+
+    if [ ! -d $GCC_DIR/gcc/ada ]
+    then
+	echo "  >> Unpacking gcc-ada-$GCC_VERSION.tar.bz2..."
+	tar -xjpf ../downloads/gcc-ada-$GCC_VERSION.tar.bz2
+
+	check_error_exit
+    fi
+
+# if [ ! -d gcc-$GCC_VERSION/gcc/cp ]
+# then
+#     echo "  >> Unpacking gcc-g++-$GCC_VERSION.tar.bz2..."
+#     tar -xjpf ../downloads/gcc-g++-$GCC_VERSION.tar.bz2
+
+#     check_error_exit
+# fi
+
+    if [ ! -d $GCC_DIR/gcc/testsuite ]
+    then
+	echo "  >> Unpacking gcc-testsuite-$GCC_VERSION.tar.bz2..."
+	tar -xjpf ../downloads/gcc-testsuite-$GCC_VERSION.tar.bz2
+
+	check_error_exit
+    fi
+
+    cd $GCC_DIR
+    apply_gcc_patches
+    create_gcc_symlinks
+    cd $SRC
 fi
 
 # if [ ! -d u-boot-$U_BOOT_VERSION ]
@@ -206,27 +346,6 @@ fi
 #     echo "  >> Unpacking u-boot-$U_BOOT_VERSION.tar.bz2..."
 #     tar -xjpf ../downloads/u-boot-$U_BOOT_VERSION.tar.bz2
 # fi
-
-# cd gcc-$GCC_VERSION
-
-# if [ ! -h gmp ]
-# then
-#     echo "  >> Creating symbolic link from gcc source to gmp..."
-#     ln -s ../gmp-$GMP_VERSION gmp
-# fi
-
-# if [ ! -h mpfr ]
-# then
-#     echo "  >> Creating symbolic link from gcc source to mpfr..."
-#     ln -s ../mpfr-$MPFR_VERSION mpfr
-# fi
-
-# if [ ! -h mpc ]
-# then
-#     echo "  >> Creating symbolic link from gcc source to mpc..."
-#     ln -s ../mpc-$MPC_VERSION mpc
-# fi
-# cd ../
 
 #################################################################################
 # Download GRUB from CVS.
@@ -264,7 +383,7 @@ then
     check_error .patched
 fi
 
-cd ..
+cd $SRC
 
 #################################################################################
 # Download Qemu from Gitorius.
@@ -290,43 +409,43 @@ fi
 #################################################################################
 # Download Cloog.
 #################################################################################
-if [ ! -d cloog ]
-then
-    echo "  >> Downloading cloog..."
-    git clone git://repo.or.cz/cloog.git
+# if [ ! -d cloog ]
+# then
+#     echo "  >> Downloading cloog..."
+#     git clone git://repo.or.cz/cloog.git
 
-    check_error_exit
+#     check_error_exit
 
-    cd cloog
-    ./get_submodules.sh
-    ./autogen.sh
+#     cd cloog
+#     ./get_submodules.sh
+#     ./autogen.sh
 
-    check_error_exit
+#     check_error_exit
 
-    cd ..
-else
-    echo "  >> Already have cloog"
-fi
+#     cd ..
+# else
+#     echo "  >> Already have cloog"
+# fi
 
 #################################################################################
 # Download PPL.
 #################################################################################
-if [ ! -d ppl ]
-then
-    echo "  >> Downloading ppl..."
-    git clone git://git.cs.unipr.it/ppl/ppl.git
+# if [ ! -d ppl ]
+# then
+#     echo "  >> Downloading ppl..."
+#     git clone git://git.cs.unipr.it/ppl/ppl.git
 
-    check_error_exit
+#     check_error_exit
 
-    cd ppl
-    autoreconf
+#     cd ppl
+#     autoreconf
 
-    check_error_exit
+#     check_error_exit
 
-    cd ..
-else
-    echo "  >> Already have ppl"
-fi
+#     cd ..
+# else
+#     echo "  >> Already have ppl"
+# fi
 
 # Get back to the src directory.
-cd ..
+cd $SRC
