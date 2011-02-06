@@ -1,13 +1,15 @@
 ################################################################################
-# build-tools.sh
-# Luke A. Guest (C) 2011
+# Filename          # build-tools.sh
+# Purpose:          # Downloads and Builds the TAMP toolchain components
+# Description:      #
+# Copyright:        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/bash
 
 ################################################################################
 # Logs from various stages of the build process are placed in the build/logs
 # directory and has a standardised naming, i.e.
-#   [description]-[config|make|install].txt
+#   [description]-[config|make|check|install].txt
 ################################################################################
 
 if [ ! -f ./config.inc ]

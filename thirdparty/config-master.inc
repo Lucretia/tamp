@@ -1,10 +1,11 @@
 ################################################################################
-# config-master.inc
-# Luke A. Guest (C) 2011
-#
-# 1) cp config-master.inc config.inc
-# 2) edit config.inc as required for your machine.
-# 3) ./build-tools.sh
+# Filename:         # config-master.inc
+# Purpose:          # Defines the TAMP Toolchain source versions/mirrors
+# Copyright:        # Luke A. Guest, David Rees Copyright (C) 2011
+#                   #
+# Description:      # 1) cp config-master.inc config.inc
+#                   # 2) edit config.inc as required for your machine.
+#                   # 3) ./build-tools.sh
 ################################################################################
 
 export TOP=`pwd`
@@ -12,9 +13,7 @@ export SRC=$TOP/src
 export LOG=$TOP/build/logs
 export BLD=$TOP/build
 
-################################################################################
-# How many jobs do you want to have going during the build?
-################################################################################
+##### How many jobs do you want to have going during the build?
 export JOBS="-j 2"
 
 ################################################################################
@@ -51,6 +50,7 @@ export CLOOG_PPL_VERSION=0.15.10
 export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
 export GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
 export MPFR_MIRROR=http://www.mpfr.org/mpfr-$MPFR_VERSION
+export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
 export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 #export U_BOOT_MIRROR=ftp://ftp.denx.de/pub/u-boot
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
@@ -77,4 +77,3 @@ export TAMP=$HOME/opt/tamp
 ################################################################################
 # export STAGE1_LIBS_PREFIX=$STAGE1_PREFIX/opt/libs
 # export STAGE2_LIBS_PREFIX=$STAGE2_PREFIX/opt/libs
-
