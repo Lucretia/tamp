@@ -162,9 +162,14 @@ then
     echo "  >> Downloading mpfr-$MPFR_VERSION..."
     wget $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
 
+    check_error_exit
+
     echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
     wget $MPFR_PATCHES
-    mv allpatches ../patches/mpfr-$MPFR_VERSION-allpatches.patch
+
+    check_error_exit
+
+    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
 
     check_error_exit
 else
@@ -232,7 +237,7 @@ cd $SRC
 if [ ! -d binutils-$BINUTILS_VERSION ]
 then
     echo "  >> Unpacking binutils-$BINUTILS_VERSION.tar.bz2..."
-    tar -xjpf ../downloads/binutils-$BINUTILS_VERSION.tar.bz2
+    tar -xjpf $TOP/downloads/binutils-$BINUTILS_VERSION.tar.bz2
 
     check_error_exit
 fi
@@ -240,7 +245,7 @@ fi
 if [ ! -d gmp-$GMP_VERSION ]
 then
     echo "  >> Unpacking gmp-$GMP_VERSION.tar.gz..."
-    tar -xzpf ../downloads/gmp-$GMP_VERSION.tar.gz
+    tar -xzpf $TOP/downloads/gmp-$GMP_VERSION.tar.gz
 
     check_error_exit
 fi
@@ -248,7 +253,7 @@ fi
 if [ ! -d mpfr-$MPFR_VERSION ]
 then
     echo "  >> Unpacking mpfr-$MPFR_VERSION.tar.bz2..."
-    tar -xjpf ../downloads/mpfr-$MPFR_VERSION.tar.bz2
+    tar -xjpf $TOP/downloads/mpfr-$MPFR_VERSION.tar.bz2
 
     check_error_exit
 fi
@@ -258,7 +263,7 @@ cd mpfr-$MPFR_VERSION
 if [ ! -f .patched ]
 then
     echo "  >> Applying mpfr patches..."
-    patch -N -Z -p1 < ../../patches/mpfr-$MPFR_VERSION-allpatches.patch
+    patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
 
     check_error_exit
     check_error .patched
@@ -269,7 +274,7 @@ cd ..
 if [ ! -d mpc-$MPC_VERSION ]
 then
     echo "  >> Unpacking mpc-$MPC_VERSION.tar.gz..."
-    tar -xzpf ../downloads/mpc-$MPC_VERSION.tar.gz
+    tar -xzpf $TOP/downloads/mpc-$MPC_VERSION.tar.gz
 
     check_error_exit
 fi
@@ -277,7 +282,7 @@ fi
 if [ ! -d newlib-$NEWLIB_VERSION ]
 then
     echo "  >> Unpacking newlib-$NEWLIB_VERSION.tar.gz..."
-    tar -xzpf ../downloads/newlib-$NEWLIB_VERSION.tar.gz
+    tar -xzpf $TOP/downloads/newlib-$NEWLIB_VERSION.tar.gz
 
     check_error_exit
 fi
@@ -325,7 +330,7 @@ else
     if [ ! -d $GCC_DIR ]
     then
 	echo "  >> Unpacking gcc-core-$GCC_VERSION.tar.bz2..."
-	tar -xjpf ../downloads/gcc-core-$GCC_VERSION.tar.bz2
+	tar -xjpf $TOP/downloads/gcc-core-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     fi
@@ -333,7 +338,7 @@ else
     if [ ! -d $GCC_DIR/gcc/ada ]
     then
 	echo "  >> Unpacking gcc-ada-$GCC_VERSION.tar.bz2..."
-	tar -xjpf ../downloads/gcc-ada-$GCC_VERSION.tar.bz2
+	tar -xjpf $TOP/downloads/gcc-ada-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     fi
@@ -349,7 +354,7 @@ else
     if [ ! -d $GCC_DIR/gcc/testsuite ]
     then
 	echo "  >> Unpacking gcc-testsuite-$GCC_VERSION.tar.bz2..."
-	tar -xjpf ../downloads/gcc-testsuite-$GCC_VERSION.tar.bz2
+	tar -xjpf $TOP/downloads/gcc-testsuite-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     fi
@@ -397,7 +402,7 @@ cd qemu
 if [ ! -f .patched ]
 then
     echo "  >> Applying Qemu patches..."
-    patch -p1 < ../../patches/qemu-nandflash.patch
+    patch -p1 < $TOP/patches/qemu-nandflash.patch
 
     check_error .patched
 fi
