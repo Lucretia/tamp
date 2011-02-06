@@ -14,7 +14,8 @@ export LOG=$TOP/build/logs
 export BLD=$TOP/build
 
 ##### How many jobs do you want to have going during the build?
-export JOBS="-j 2"
+#export JOBS="-j 2" # manual
+export JOBS="-j`grep -Ec "^cpu[0-9]+" /proc/stat`" # 1 Job Per CPU
 
 ################################################################################
 # Edit package versions/mirrors as required.
@@ -56,8 +57,8 @@ export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
 export PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
-export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
-
+#export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
+#export SPARK_FILE=spark-gpl-2010-SMT-x86_64-pc-linux-gnu.tar.gz
 export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
 
 ################################################################################

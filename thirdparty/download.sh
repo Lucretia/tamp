@@ -226,9 +226,6 @@ fi
 #     echo "  >> Already have u-boot-$U_BOOT_VERSION.tar.bz2"
 # fi
 
-# TODO: Download and apply patches to other packages.
-# mpfr: patch -N -Z -p1 < allpatches
-
 cd $SRC
 
 #################################################################################
