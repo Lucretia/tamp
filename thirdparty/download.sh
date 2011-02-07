@@ -380,40 +380,40 @@ fi
 #################################################################################
 # Download GRUB from CVS.
 #################################################################################
-if [ ! -d grub2 ]
-then
-    echo "  >> Downloading GRUB 2 from CVS..."
-    cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/grub co grub2
+# if [ ! -d grub2 ]
+# then
+#     echo "  >> Downloading GRUB 2 from CVS..."
+#     cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/grub co grub2
 
-    check_error_exit
-else
-    echo "  >> Already have GRUB 2 from CVS"
-fi
+#     check_error_exit
+# else
+#     echo "  >> Already have GRUB 2 from CVS"
+# fi
 
 #################################################################################
 # Download Qemu from Gitorius.
 #################################################################################
-if [ ! -d qemu ]
-then
-    echo "  >> Downloading qemu from Gitorius..."
-    git clone git://gitorious.org/qemu-maemo/qemu.git
+# if [ ! -d qemu ]
+# then
+#     echo "  >> Downloading qemu from Gitorius..."
+#     git clone git://gitorious.org/qemu-maemo/qemu.git
 
-    check_error_exit
-else
-    echo "  >> Already have qemu from Gitorius"
-fi
+#     check_error_exit
+# else
+#     echo "  >> Already have qemu from Gitorius"
+# fi
 
-cd qemu
+# cd qemu
 
-if [ ! -f .patched ]
-then
-    echo "  >> Applying Qemu patches..."
-    patch -p1 < $TOP/patches/qemu-nandflash.patch
+# if [ ! -f .patched ]
+# then
+#     echo "  >> Applying Qemu patches..."
+#     patch -p1 < $TOP/patches/qemu-nandflash.patch
 
-    check_error .patched
-fi
+#     check_error .patched
+# fi
 
-cd $SRC
+# cd $SRC
 
 #################################################################################
 # Download Qemu from Gitorius.
