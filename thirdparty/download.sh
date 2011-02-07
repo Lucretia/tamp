@@ -163,15 +163,6 @@ then
     wget $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
 
     check_error_exit
-
-    echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
-    wget $MPFR_PATCHES
-
-    check_error_exit
-
-    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION.patch
-
-    check_error_exit
 else
     echo "  >> Already have mpfr-$MPFR_VERSION"
 fi
@@ -264,7 +255,7 @@ then
 
     check_error_exit
 
-    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
+    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION.patch
 
     check_error_exit
 
