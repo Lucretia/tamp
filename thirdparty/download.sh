@@ -226,9 +226,6 @@ fi
 #     echo "  >> Already have u-boot-$U_BOOT_VERSION.tar.bz2"
 # fi
 
-# TODO: Download and apply patches to other packages.
-# mpfr: patch -N -Z -p1 < allpatches
-
 cd $SRC
 
 #################################################################################
@@ -262,6 +259,15 @@ cd mpfr-$MPFR_VERSION
 
 if [ ! -f .patched ]
 then
+    echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
+    wget $MPFR_PATCHES
+
+    check_error_exit
+
+    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
+
+    check_error_exit
+
     echo "  >> Applying mpfr patches..."
     patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION.patch
 
