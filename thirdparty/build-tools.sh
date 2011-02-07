@@ -291,7 +291,7 @@ function build_stage1_toolchain()
 #		--prefix=$STAGE1_PREFIX/gcc-$GCC_VERSION \
 	    $GCC_DIR/configure \
 		--prefix=$TAMP \
-		--disable-multilib \
+		--enable-multilib \
 		--enable-shared \
 		--with-gnu-as \
 		--with-gnu-ld \
@@ -305,6 +305,9 @@ function build_stage1_toolchain()
 #		--with-gmp=$LIBPRE \
 #		--with-mpfr=$LIBPRE \
 #		--with-mpc=$LIBPRE \
+
+# Include --with-system-zlib ?
+# Include --disable-libgomp
 
 	    check_error .config
 	fi
@@ -540,6 +543,7 @@ function build_toolchain()
 		--with-gnu-ld \
 		--enable-languages=c,ada \
 		--disable-libada \
+		--disable-libssp \
 		--without-ppl \
 		--without-cloog \
 		&> $LOGPRE-gcc2-config.txt
@@ -554,6 +558,14 @@ function build_toolchain()
 
 	    check_error .make
 	fi
+
+	# if [ ! -f .make-gnattools ]
+	# then
+	#     echo "  >> Building gnattools..."
+	#     make $JOBS all-gnattools &> $LOGPRE-gcc2-make-gnattools.txt
+
+	#     check_error .make-gnattools
+	# fi
 
 	if [ ! -f .make-install ]
 	then

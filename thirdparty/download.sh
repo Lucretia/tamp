@@ -169,7 +169,7 @@ then
 
     check_error_exit
 
-    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
+    mv allpatches $TOP/patches/mpfr-$MPFR_VERSION.patch
 
     check_error_exit
 else
@@ -263,7 +263,7 @@ cd mpfr-$MPFR_VERSION
 if [ ! -f .patched ]
 then
     echo "  >> Applying mpfr patches..."
-    patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION-allpatches.patch
+    patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION.patch
 
     check_error_exit
     check_error .patched
@@ -412,23 +412,23 @@ cd $SRC
 #################################################################################
 # Download Qemu from Gitorius.
 #################################################################################
-if [ ! -d u-boot ]
-then
-    #echo "  >> Downloading u-boot from Denx..."
-    # git clone git://git.denx.de/u-boot.git
+# if [ ! -d u-boot ]
+# then
+#     echo "  >> Downloading u-boot from Denx..."
+#     git clone git://git.denx.de/u-boot.git
 
-    # check_error_exit
+#     check_error_exit
 
-    #echo "  >> Downloading u-boot for omap3 from Denx..."
-    #cd u-boot
-    # git checkout --track -b omap3 origin/master
+#     echo "  >> Downloading u-boot for omap3 from Denx..."
+#     cd u-boot
+#     git checkout --track -b omap3 origin/master
 
-    # check_error_exit
+#     check_error_exit
 
-    #cd ..
-else
-    echo "  >> Already have u-boot from Denx"
-fi
+#     cd ..
+# else
+#     echo "  >> Already have u-boot from Denx"
+# fi
 
 #################################################################################
 # Download Cloog.
