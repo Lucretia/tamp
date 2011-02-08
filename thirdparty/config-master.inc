@@ -45,13 +45,13 @@ fi
 
 #export U_BOOT_VERSION=1.3.4
 export NEWLIB_VERSION=1.19.0
-export PPL_VERSION=0.11
-export CLOOG_PPL_VERSION=0.15.10
+#export PPL_VERSION=0.11
+#export CLOOG_PPL_VERSION=0.15.10
 
 export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
 export GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
 export MPFR_MIRROR=http://www.mpfr.org/mpfr-$MPFR_VERSION
-export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
+export MPFR_PATCHES=http://www.mpfr.org/mpfr-$MPFR_VERSION/allpatches
 export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 #export U_BOOT_MIRROR=ftp://ftp.denx.de/pub/u-boot
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
@@ -59,7 +59,6 @@ export PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 #export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
 #export SPARK_FILE=spark-gpl-2010-SMT-x86_64-pc-linux-gnu.tar.gz
-export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
 
 ################################################################################
 # Installation directory

@@ -75,7 +75,7 @@ function create_gcc_symlinks()
 }
 
 # Start the script.
-echo "Downloading required packages..."
+echo "Downloading required source packages, this may take a while..."
 
 DIRS="src downloads"
 
@@ -97,7 +97,7 @@ cd $TOP/downloads
 if [ ! -f binutils-$BINUTILS_VERSION.tar.bz2 ]
 then
     echo "  >> Downloading binutils-$BINUTILS_VERSION..."
-    wget $BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
+    wget -c $BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
 
     check_error_exit
 else
@@ -109,7 +109,7 @@ then
     if [ ! -f gcc-core-$GCC_VERSION.tar.bz2 ]
     then
 	echo "  >> Downloading GCC-core-$GCC_VERSION..."
-	wget $GCC_MIRROR/gcc-core-$GCC_VERSION.tar.bz2
+	wget -c $GCC_MIRROR/gcc-core-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     else
@@ -119,7 +119,7 @@ then
     if [ ! -f gcc-ada-$GCC_VERSION.tar.bz2 ]
     then
 	echo "  >> Downloading GCC-ada-$GCC_VERSION..."
-	wget $GCC_MIRROR/gcc-ada-$GCC_VERSION.tar.bz2
+	wget -c $GCC_MIRROR/gcc-ada-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     else
@@ -139,7 +139,7 @@ then
     if [ ! -f gcc-testsuite-$GCC_VERSION.tar.bz2 ]
     then
 	echo "  >> Downloading GCC-testsuite-$GCC_VERSION..."
-	wget $GCC_MIRROR/gcc-testsuite-$GCC_VERSION.tar.bz2
+	wget -c $GCC_MIRROR/gcc-testsuite-$GCC_VERSION.tar.bz2
 
 	check_error_exit
     else
@@ -150,7 +150,7 @@ fi
 if [ ! -f gmp-$GMP_VERSION.tar.gz ]
 then
     echo "  >> Downloading gmp-$GMP_VERSION..."
-    wget $GMP_MIRROR/gmp-$GMP_VERSION.tar.gz
+    wget -c $GMP_MIRROR/gmp-$GMP_VERSION.tar.gz
 
     check_error_exit
 else
@@ -160,7 +160,7 @@ fi
 if [ ! -f mpfr-$MPFR_VERSION.tar.bz2 ]
 then
     echo "  >> Downloading mpfr-$MPFR_VERSION..."
-    wget $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
+    wget -c $MPFR_MIRROR/mpfr-$MPFR_VERSION.tar.bz2
 
     check_error_exit
 else
@@ -170,7 +170,7 @@ fi
 if [ ! -f mpc-$MPC_VERSION.tar.gz ]
 then
     echo "  >> Downloading mpc-$MPC_VERSION..."
-    wget $MPC_MIRROR/mpc-$MPC_VERSION.tar.gz
+    wget -c $MPC_MIRROR/mpc-$MPC_VERSION.tar.gz
 
     check_error_exit
 else
@@ -180,7 +180,7 @@ fi
 if [ ! -f newlib-$NEWLIB_VERSION.tar.gz ]
 then
     echo "  >> newlib-$NEWLIB_VERSION.tar.gz..."
-    wget $NEWLIB_MIRROR/newlib-$NEWLIB_VERSION.tar.gz
+    wget -c $NEWLIB_MIRROR/newlib-$NEWLIB_VERSION.tar.gz
 
     check_error_exit
 else
@@ -190,7 +190,7 @@ fi
 # if [ ! -f ppl-$PPL_VERSION.tar.gz ]
 # then
 #     echo "  >> ppl-$PPL_VERSION.tar.gz..."
-#     wget $PPL_MIRROR/ppl-$PPL_VERSION.tar.gz
+#     wget -c $PPL_MIRROR/ppl-$PPL_VERSION.tar.gz
 
 #     check_error_exit
 # else
@@ -200,7 +200,7 @@ fi
 # if [ ! -f cloog-ppl-$CLOOG_PPL_VERSION.tar.gz ]
 # then
 #     echo "  >> cloog-ppl-$CLOOG_PPL_VERSION.tar.gz..."
-#     wget $CLOOG_PPL_MIRROR/cloog-ppl-$CLOOG_PPL_VERSION.tar.gz
+#     wget -c $CLOOG_PPL_MIRROR/cloog-ppl-$CLOOG_PPL_VERSION.tar.gz
 
 #     check_error_exit
 # else
@@ -210,7 +210,7 @@ fi
 # if [ ! -f u-boot-$U_BOOT_VERSION.tar.bz2 ]
 # then
 #     echo "  >> Downloading u-boot-$U_BOOT_VERSION.tar.bz2..."
-#     wget $U_BOOT_MIRROR/u-boot-$U_BOOT_VERSION.tar.bz2
+#     wget -c $U_BOOT_MIRROR/u-boot-$U_BOOT_VERSION.tar.bz2
 
 #     check_error_exit
 # else
@@ -251,7 +251,7 @@ cd mpfr-$MPFR_VERSION
 if [ ! -f .patched ]
 then
     echo "  >> Downloading mpfr-$MPFR_VERSION patches..."
-    wget $MPFR_PATCHES
+    wget -c $MPFR_PATCHES
 
     check_error_exit
 
@@ -259,8 +259,10 @@ then
 
     check_error_exit
 
-    echo "  >> Applying mpfr patches..."
-    patch -N -Z -p1 < $TOP/patches/mpfr-$MPFR_VERSION.patch
+    echo "  >> Applying mpfr-$MPFR_VERSION patches..."
+    # Patch, ignoring patches already applied
+    # Work silently unless an error occurs
+    patch -s -N -p1 < $TOP/patches/mpfr-$MPFR_VERSION.patch
 
     check_error_exit
     check_error .patched
@@ -305,25 +307,51 @@ fi
 #     check_error_exit
 # fi
 
-if [ $GCC_FROM_REPO = "yes" ]
-then
-    if [ ! -d $GCC_DIR ]
-    then
-	echo "  >> Downloading GCC from SVN..."
-	svn checkout -q $GCC_REPO gcc
+if [ $GCC_FROM_REPO = "yes" ]; then
+    echo "  >> Deciding whether to download, or update, the GCC source code..."
+    export GCC_REPO_REVISION=`svn info svn://gcc.gnu.org/svn/gcc/trunk | sed -ne 's/^Revision: //p'`
 
-	check_error_exit
-
+    if [ ! -d $GCC_DIR ]; then
+	echo "  >>>> Downloading GCC source code from the SVN, this may take a while..."
+        svn checkout -q $GCC_REPO gcc
+        check_error_exit
+        
 	cd $GCC_DIR
-	svn update -q
-
+        echo $GCC_REPO_REVISION > .revision        
+        
+        #Update
+        ./contrib/gcc_update --touch
 	check_error_exit
 
 	apply_gcc_patches
 	create_gcc_symlinks
 	cd $SRC
+    else
+    # gcc svn generated source directory exists already, see if it needs updating 
+
+	cd $GCC_DIR
+        export GCC_PREV_REVISION=`cat $GCC_DIR/.revision`
+        
+        if [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION > $GCC_PREV_REVISION )); then
+               
+           echo "  >>>> Updating the local GCC source revision from $GCC_PREV_REVISION to $GCC_REPO_REVISION"
+           ./contrib/gcc_update -q
+           echo $GCC_REPO_REVISION > .revision
+        
+        elif [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION == $GCC_PREV_REVISION )); then
+           echo "  >>>> Local GCC source revision $GCC_PREV_REVISION is up-to-date. Skipping."
+
+        else
+           echo "  >>>> Couldn't determine the local GCC status, try deleting the $GCC_DIR directory."
+        fi
+
+        check_error_exit
+        cd $SRC
     fi
-else
+else 
+  #gcc not from svn repository
+    
+    
     if [ ! -d $GCC_DIR ]
     then
 	echo "  >> Unpacking gcc-core-$GCC_VERSION.tar.bz2..."

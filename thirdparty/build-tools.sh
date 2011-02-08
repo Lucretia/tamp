@@ -90,6 +90,7 @@ function build_stage1_toolchain()
 #     # Build gmp
 #     cd $CBD/gmp
 
+
 #     if [ ! -f .config ]
 #     then
 # 	echo "  >> Configuring gmp..."
@@ -97,8 +98,8 @@ function build_stage1_toolchain()
 # 	    --prefix=$LIBPRE/gmp-$GMP_VERSION \
 # 	    --enable-cxx \
 # 	    &> $LOGPRE-gmp-config.txt
-# #	    --enable-static
-# #	    --disable-shared
+##	    --enable-static
+##	    --disable-shared
 
 # 	check_error .config
 #     fi
@@ -134,8 +135,8 @@ function build_stage1_toolchain()
 # 		--prefix=$LIBPRE/mpfr-$MPFR_VERSION \
 # 		--with-gmp=$LIBPRE/gmp-$GMP_VERSION \
 # 		&> $LOGPRE-mpfr-config.txt
-# #		--enable-static
-# #		--disable-shared
+##		--enable-static
+##		--disable-shared
 
 # 	    check_error .config
 # 	fi
@@ -174,8 +175,8 @@ function build_stage1_toolchain()
 # 		--with-gmp=$LIBPRE/gmp-$GMP_VERSION \
 # 		--with-mpfr=$LIBPRE/mpfr-$MPFR_VERSION \
 # 		&> $LOGPRE-mpc-config.txt
-# #		--disable-shared
-# #		--enable-static
+##		--disable-shared
+##		--enable-static
 
 # 	    check_error .config
 # 	fi
@@ -298,16 +299,15 @@ function build_stage1_toolchain()
 		--enable-languages=c,ada \
 		--without-ppl \
 		--without-cloog \
+                --with-system-zlib \
+                --disable-libgomp \
 		&> $LOGPRE-gcc-config.txt
-#		--disable-lto
-#		--with-ppl=$LIBPRE
+#		--disable-lto \
+#		--with-ppl=$LIBPRE \
 #		--with-cloog=$LIBPRE
 #		--with-gmp=$LIBPRE \
 #		--with-mpfr=$LIBPRE \
 #		--with-mpc=$LIBPRE \
-
-# Include --with-system-zlib ?
-# Include --disable-libgomp
 
 	    check_error .config
 	fi
@@ -1038,7 +1038,7 @@ then
 fi
 
 build_stage1_toolchain
-build_toolchain arm-none-eabi --enable-interwork
+#build_toolchain arm-none-eabi --enable-interwork
 #build_toolchain i386-elf
 #build_toolchain mips-elf
 
