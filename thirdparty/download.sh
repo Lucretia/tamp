@@ -41,7 +41,7 @@ function apply_gcc_patches()
 {
     if [ ! -f .patched ]
     then
-	PATCHES="gnattools.patch gnattools2.patch"
+	PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
 
 	echo "  >> Applying gcc patches..."
 	for p in $PATCHES
@@ -366,7 +366,7 @@ else
     fi
 
     cd $GCC_DIR
-    apply_gcc_patches
+#    apply_gcc_patches
     create_gcc_symlinks
     cd $SRC
 fi

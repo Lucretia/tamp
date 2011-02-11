@@ -62,6 +62,11 @@ export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 export MPFR_PATCHES=http://www.mpfr.org/mpfr-3.0.0/allpatches
 
 ################################################################################
+# Add any extra tuning you want here
+################################################################################
+export EXTRA_NATIVE_CFLAGS=
+
+################################################################################
 # Installation directory
 #
 # Stage1 = Latest version of the compilers built with the system compilers.
