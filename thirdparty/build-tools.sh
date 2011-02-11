@@ -6,6 +6,15 @@
 ################################################################################
 #!/bin/bash
 
+# TOOD:
+#
+# Add command line options for specifying which compiler to build and also
+# whether to apply (or undo) the patches.
+#
+# Get rid of the STAGE1* stuff as it was only put in due to thinking we may
+# need to build more than one stage of native compiler, but this is done by
+# GCC anyway.
+
 ################################################################################
 # Logs from various stages of the build process are placed in the build/logs
 # directory and has a standardised naming, i.e.
@@ -59,17 +68,31 @@ function check_error()
 
 function apply_gcc_patches()
 {
-    if [ ! -f .patched ]
+    if [ $GCC_FROM_REPO = "yes" ]
     then
-	PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
+	cd $SRC/gcc
 
-	echo "  >> Applying gcc patches..."
-	for p in $PATCHES
-	do
-	    patch -p1 < .$TOP/patches/gcc-4.6/$p
+	if [ ! -f .patched ]
+	then
+	    PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
 
-	    check_error_exit
-	done
+	    echo "  >> Applying gcc patches..."
+	    for p in $PATCHES
+	    do
+		patch -p1 < .$TOP/patches/gcc-4.6/$p
+
+		check_error .patched
+	    done
+	fi
+    else
+	cd $SRC/gcc-$GCC_VERSION
+
+	if [ ! -f .patched ]
+	then
+	    patch -p1 < $TOP/patches/gcc-4.5.2-cross-arm.patch
+
+	    check_error .patched
+	fi
     fi
 }
 
@@ -85,7 +108,6 @@ function build_native_toolchain()
 
     VER="native"
     STAGE="$VER/stage1"
-#    DIRS="gmp mpfr mpc gcc"
     DIRS="gcc"
 
     echo "  >> Creating directories..."
@@ -104,61 +126,50 @@ function build_native_toolchain()
     # Build the native GCC compiler.
     cd $CBD/gcc
 
-    # if [ -f $LAST/.make-install ]
-    # then
-	if [ ! -f .config ]
-	then
-	    echo "  >> Configuring gcc..."
-	    # Use --disable-lto because linking ltol gave ppl/C++ link errors.
-	    # Turn off CLooG/PPL as we don't want C++.
-#	    LD_LIBRARY_PATH=$LIBPRE/gmp-$GMP_VERSION/lib:$LIBPRE/mpfr-$MPFR_VERSION/lib:$LIBPRE/mpc-$MPC_VERSION/lib:$LD_LIBRARY_PATH \
-#		--prefix=$STAGE1_PREFIX/gcc-$GCC_VERSION \
-	    $GCC_DIR/configure \
-		--prefix=$TAMP \
-		--enable-multilib \
-		--enable-shared \
-		--with-gnu-as \
-		--with-gnu-ld \
-		--enable-languages=c,ada \
-		--without-ppl \
-		--without-cloog \
-		--with-system-zlib \
-		--disable-libgomp \
-		CFLAGS="-fno-builtin-cproj $EXTRA_NATIVE_CFLAGS" \
-		&> $LOGPRE-gcc-config.txt
-#		--disable-lto \
-#		--with-ppl=$LIBPRE \
-#		--with-cloog=$LIBPRE
-#		--with-gmp=$LIBPRE \
-#		--with-mpfr=$LIBPRE \
-#		--with-mpc=$LIBPRE \
+    if [ ! -f .config ]
+    then
+	echo "  >> Configuring gcc..."
+	# Turn off CLooG/PPL as we don't want C++.
+	$GCC_DIR/configure \
+	    --prefix=$TAMP \
+	    --enable-multilib \
+	    --enable-shared \
+	    --with-gnu-as \
+	    --with-gnu-ld \
+	    --enable-languages=c,ada \
+	    --without-ppl \
+	    --without-cloog \
+	    --with-system-zlib \
+	    --disable-libgomp \
+	    CFLAGS="-fno-builtin-cproj $EXTRA_NATIVE_CFLAGS" \
+	    &> $LOGPRE-gcc-config.txt
 
-	    check_error .config
-	fi
+	check_error .config
+    fi
 
-	if [ ! -f .make ]
-	then
-	    echo "  >> Building gcc..."
-	    make $JOBS &> $LOGPRE-gcc-make.txt
+    if [ ! -f .make ]
+    then
+	echo "  >> Building gcc..."
+	make $JOBS &> $LOGPRE-gcc-make.txt
 
-	    check_error .make
-	fi
+	check_error .make
+    fi
 
-	if [ ! -f .make-install ]
-	then
-	    echo "  >> Installing gcc..."
-	    make install &> $LOGPRE-gcc-install.txt
+    if [ ! -f .make-install ]
+    then
+	echo "  >> Installing gcc..."
+	make install &> $LOGPRE-gcc-install.txt
 
-	    check_error .make-install
-	fi
+	check_error .make-install
+    fi
 
-	if [ ! -f .test-gcc ]
-	then
-	    echo "  >> Testing gcc..."
-	    make -k check-gcc &> $LOGPRE-gcc-test.txt
+    if [ ! -f .test-gcc ]
+    then
+	echo "  >> Testing gcc..."
+	make -k check-gcc &> $LOGPRE-gcc-test.txt
 
-	    check_error .test-gcc
-	fi
+	check_error .test-gcc
+    fi
 
     echo "  >> done."
 
@@ -166,25 +177,20 @@ function build_native_toolchain()
     cd $BLD
 }
 
+################################################################################
 # $1 = Target.
 # $2 = Any extra configure parameters.
+################################################################################
 function build_toolchain()
 {
     echo "Building $1 toolchain..."
 
-if [ $GCC_FROM_REPO = "yes" ]
-then
-    cd $SRC/gcc
     apply_gcc_patches
-else
-    cd $SRC/gcc-$GCC_VERSION
-    patch -p1 < $TOP/patches/gcc-4.5.2-cross-arm.patch
-fi
+
     cd $BLD
 
     VER=$1
     STAGE="$VER"
-#    DIRS="gmp mpfr mpc gcc"
     DIRS="binutils gcc1 newlib gcc2"
 
     echo "  >> Creating directories..."
@@ -374,18 +380,18 @@ fi
 	if [ ! -f .make ]
 	then
 	    echo "  >> Building gcc (C, Ada)..."
-	    make $JOBS &> $LOGPRE-gcc2-make.txt
+	    make $JOBS all-gcc &> $LOGPRE-gcc2-make.txt
 
 	    check_error .make
 	fi
 
-	# if [ ! -f .make-gnattools ]
-	# then
-	#     echo "  >> Building gnattools..."
-	#     make $JOBS all-gnattools &> $LOGPRE-gcc2-make-gnattools.txt
+	if [ ! -f .make-gnattools ]
+	then
+	    echo "  >> Building gnattools..."
+	    make $JOBS all-gnattools &> $LOGPRE-gcc2-make-gnattools.txt
 
-	#     check_error .make-gnattools
-	# fi
+	    check_error .make-gnattools
+	fi
 
 	if [ ! -f .make-install ]
 	then
