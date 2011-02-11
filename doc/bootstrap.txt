@@ -1,0 +1,74 @@
+################################################################################
+#                           Boot-strapping Tamp                                #
+#                                   By                                         #
+#                              Luke A. Guest                                   #
+################################################################################
+
+The following shows the boot process for TAMP.
+
++------------+    +------------+    +------------+
+| Bootloader | -> | tamp_image | -> | tamp_strap |
++------------+    +------------+    +------------+
+                                          |
+          +-------------------------------+
+          |
+      +------+
+      | tamp |
+      +------+
+          |
++-------------------+
+| initial processes |
++-------------------+
+
+################################################################################
+# Bootloader
+################################################################################
+
+This could be GRUB 2 for PC or U-Boot, RedBoot, OpenFirmware for other
+platforms.
+
+################################################################################
+# tamp_image
+################################################################################
+
+This is a collection of modules to boot TAMP to some kind of usable state, this
+will include the tamp_strap component, the kernel itself and the initial
+processes the kernel must start executing.
+
+On PC, GRUB can be used to load each module from a filesystem independently, so
+may not require a boot image per se.
+
+################################################################################
+# tamp_strap
+################################################################################
+
+The tamp_strap knows about ELF and can parse them to get at their contents. This
+should not be in the kernel itself as we want the kernel to only handle certain
+things, although there will most likely be some sort of ELF parsing shared
+library for the upper OS levels.
+
+The strap re-arranges the modules contained inside the tamp_image so that they
+exist within memory at a particular points that make sense for the hardware. It
+sets up the kernel with information on the hardware and the modules it must
+create processes for.
+
+Finally the strap will jump to the kernel entry point and start executing there
+doing any final initialisations before the kernel takes over the machine.
+
+################################################################################
+# tamp (kernel)
+################################################################################
+
+Once the strap has entered the kernel, the kernel can create it's list of memory
+pages available, this will automatically clean up the pages used by the strap
+as the strap pages won't be passed to the kernel as allocated. The kernel
+can then initialise hardware, e.g. interrupts, MMU, etc.
+
+Once the hardware is initialised, the kernel will then create the processes
+for the initial modules, as these would've been passed to the kernel from the
+strap. These processes can then be scheduled to run.
+
+Initially, sample programs will be written as the initial process, as TAMP
+matures, it would be necessary to add other modules such as a filesystem,
+shared libraries, device drivers and other programs that would need to be
+started by the kernel before an OS could boot on TAMP.
