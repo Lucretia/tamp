@@ -126,15 +126,12 @@ function build_native_toolchain()
 		--disable-libgomp \
 		CFLAGS="-fno-builtin-cproj $EXTRA_NATIVE_CFLAGS" \
 		&> $LOGPRE-gcc-config.txt
-#		--disable-lto
-#		--with-ppl=$LIBPRE
+#		--disable-lto \
+#		--with-ppl=$LIBPRE \
 #		--with-cloog=$LIBPRE
 #		--with-gmp=$LIBPRE \
 #		--with-mpfr=$LIBPRE \
 #		--with-mpc=$LIBPRE \
-
-# Include --with-system-zlib ?
-# Include --disable-libgomp
 
 	    check_error .config
 	fi
