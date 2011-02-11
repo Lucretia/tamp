@@ -33,3 +33,62 @@ Dependencies
 PPL requires that you have texlive-math-extra installed on your machine so that
 it can generate the documentation, I haven't found a way of disabling the
 generation of the docs yet.
+
+Getting started
+---------------
+
+TAMP uses GCC-4.6 due to the total inability of previous versions to build an
+Ada cross compiler, we've still had to hack the main makefile and configure
+script to enable this even though AdaCore have apparently fixed this which they
+haven't, but it works. So the first thing you will need is a toolchain:
+
+1) Native to your OS
+2) Cross compilers for the target you want to build TAMP for (i.e. ARM)
+
+cd thirdparty
+cp config-master.inc config.inc
+
+Edit config.inc for your enviroment, i.e. installation directory.
+
+./build-tools.sh (or sudo to install as root, this will create root owned dirs)
+
+By default the native compiler will also run the testsuite.
+
+Common problems
+---------------
+
+When building the cross gnattools, if the following error occurs:
+
+  make.adb:7388:07: "Create_Temp_Output_File" is undefined
+
+GNAT is not using the right version of the compiler to build itself! Check
+that the native tools have built and installed themselves properly into $TAMP
+otherwise the gnatmake found will be the system one and s-os_lib may not
+have Create_Temp_Output_File subprogram defined.
+
+Caveats
+-------
+
+If you have to build the native compiler again after having built the cross
+compilers, you will have to reverse the patches applied as they're incompatible
+with native builds:
+
+cd thirdparty/src/gcc (or whichever version of GCC the script is using)
+cat ../../patches/gcc-4.6/* |patch -p1 -i -
+
+The script will re-apply them for cross builds.
+
+* gnatlib.patch
+
+  Disables the check for the --disable-libada flag such that the gnattools
+  target still provided after configure has run.
+
+* gnatlib2.patch
+
+  Removes the dependency of maybe-all-target-libada from all-gnattools thus
+  allowing us to build the gnattools.
+
+* gnattools.patch & gnattools2.patch
+
+  Adds support for ARM in the gnattools. This would need to be modified for
+  other bareboard targets where <target>-<toolname> applies.
