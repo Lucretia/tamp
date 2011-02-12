@@ -103,6 +103,17 @@ The script will re-apply them for cross builds.
   Removes the dependency of maybe-all-target-libada from all-gnattools thus
   allowing us to build the gnattools.
 
+* gnatlib3.patch
+
+  Removes the last lines in the ada.install-common target which calls
+  install-gnatlib as this isn't required, if this is left in the install fails
+  with the following message:
+
+    You must first build the GNAT library: make gnatlib
+
+  which is found in the rule ../stamp-gnatlib-$(RTSDIR) within the
+  gcc/ada/gcc-interface/Makefile.
+
 * gnattools.patch & gnattools2.patch
 
   Adds support for ARM in the gnattools. This would need to be modified for
