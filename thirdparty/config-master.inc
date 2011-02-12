@@ -13,6 +13,11 @@ export SRC=$TOP/src
 export LOG=$TOP/build/logs
 export BLD=$TOP/build
 
+################################################################################
+# Is the host machine 64 bit? Used for LD_LIBRARY_PATH, leave blank for 32.
+################################################################################
+export BITS=64
+
 ##### How many jobs do you want to have going during the build?
 #export JOBS="-j 2" # manual
 export JOBS="-j`grep -Ec "^cpu[0-9]+" /proc/stat`" # 1 Job Per CPU

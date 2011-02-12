@@ -212,7 +212,7 @@ function build_toolchain()
     CBD=$BLD/$STAGE
 
     export PATH=$TAMP/bin:$PATH
-    export LD_LIBRARY_PATH=$TAMP/lib64:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$TAMP/lib$BITS:$LD_LIBRARY_PATH
 
     # Build BinUtils.
     cd $CBD/binutils
