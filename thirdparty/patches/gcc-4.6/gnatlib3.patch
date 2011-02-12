@@ -1,0 +1,25 @@
+*** gcc/gcc/ada/gcc-interface/Make-lang.in.orig	2011-02-12 12:44:36.000000000 +0000
+--- gcc/gcc/ada/gcc-interface/Make-lang.in	2011-02-12 12:45:31.000000000 +0000
+***************
+*** 873,882 ****
+  #
+  # Finally, install the library
+  #
+! 	-if [ -f gnat1$(exeext) ] ; \
+! 	then \
+! 	  $(MAKE) $(FLAGS_TO_PASS) $(ADA_FLAGS_TO_PASS) install-gnatlib; \
+! 	fi
+  
+  install-gnatlib:
+  	$(MAKE) -C ada $(FLAGS_TO_PASS) $(ADA_FLAGS_TO_PASS) install-gnatlib$(LIBGNAT_TARGET)
+--- 873,882 ----
+  #
+  # Finally, install the library
+  #
+! #	-if [ -f gnat1$(exeext) ] ; \
+! #	then \
+! #	  $(MAKE) $(FLAGS_TO_PASS) $(ADA_FLAGS_TO_PASS) install-gnatlib; \
+! #	fi
+  
+  install-gnatlib:
+  	$(MAKE) -C ada $(FLAGS_TO_PASS) $(ADA_FLAGS_TO_PASS) install-gnatlib$(LIBGNAT_TARGET)
