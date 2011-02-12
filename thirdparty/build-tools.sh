@@ -9,7 +9,8 @@
 # TOOD:
 #
 # Add command line options for specifying which compiler to build and also
-# whether to apply (or undo) the patches.
+# whether to apply (or undo) the patches:
+#   --native --arm
 #
 # Get rid of the STAGE1* stuff as it was only put in due to thinking we may
 # need to build more than one stage of native compiler, but this is done by
@@ -66,7 +67,7 @@ function check_error()
 }
 
 
-function apply_gcc_patches()
+function apply_cross_gcc_patches()
 {
     if [ $GCC_FROM_REPO = "yes" ]
     then
@@ -74,12 +75,16 @@ function apply_gcc_patches()
 
 	if [ ! -f .patched ]
 	then
-	    PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
+	    PATCHES="gnattools.patch" \
+		"gnattools2.patch" \
+		"gnatlib.patch" \
+		"gnatlib2.patch" \
+		"gnatlib3.patch"
 
-	    echo "  >> Applying gcc patches..."
+	    echo "  >> Applying gcc patches for cross compiler..."
 	    for p in $PATCHES
 	    do
-		patch -p1 < .$TOP/patches/gcc-4.6/$p
+		patch -p1 < $TOP/patches/gcc-4.6/$p
 
 		check_error .patched
 	    done
@@ -185,7 +190,7 @@ function build_toolchain()
 {
     echo "Building $1 toolchain..."
 
-    apply_gcc_patches
+    apply_cross_gcc_patches
 
     cd $BLD
 
@@ -396,7 +401,7 @@ function build_toolchain()
 	if [ ! -f .make-install ]
 	then
 	    echo "  >> Installing gcc (C, Ada)..."
-	    make install &> $LOGPRE-gcc2-install.txt
+	    make install-gcc &> $LOGPRE-gcc2-install.txt
 
 	    check_error .make-install
 	fi

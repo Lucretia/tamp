@@ -37,21 +37,21 @@ function check_for_spark()
     fi
 }
 
-function apply_gcc_patches()
-{
-    if [ ! -f .patched ]
-    then
-	PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
+# function apply_gcc_patches()
+# {
+#     if [ ! -f .patched ]
+#     then
+# 	PATCHES="gnattools.patch gnattools2.patch gnatlib.patch gnatlib2.patch"
 
-	echo "  >> Applying gcc patches..."
-	for p in $PATCHES
-	do
-	    patch -p1 < ../../patches/gcc-4.6/$p
+# 	echo "  >> Applying gcc patches..."
+# 	for p in $PATCHES
+# 	do
+# 	    patch -p1 < ../../patches/gcc-4.6/$p
 
-	    check_error_exit
-	done
-    fi
-}
+# 	    check_error_exit
+# 	done
+#     fi
+# }
 
 function create_gcc_symlinks()
 {
@@ -307,51 +307,52 @@ fi
 #     check_error_exit
 # fi
 
+# This update repository stuff is breaking my build!
 if [ $GCC_FROM_REPO = "yes" ]; then
-    echo "  >> Deciding whether to download, or update, the GCC source code..."
-    export GCC_REPO_REVISION=`svn info svn://gcc.gnu.org/svn/gcc/trunk | sed -ne 's/^Revision: //p'`
+    # echo "  >> Deciding whether to download, or update, the GCC source code..."
+    # export GCC_REPO_REVISION=`svn info svn://gcc.gnu.org/svn/gcc/trunk | sed -ne 's/^Revision: //p'`
 
     if [ ! -d $GCC_DIR ]; then
 	echo "  >>>> Downloading GCC source code from the SVN, this may take a while..."
         svn checkout -q $GCC_REPO gcc
         check_error_exit
-        
-	cd $GCC_DIR
-        echo $GCC_REPO_REVISION > .revision        
-        
-        #Update
-        ./contrib/gcc_update --touch
-	check_error_exit
 
-	apply_gcc_patches
+	cd $GCC_DIR
+        # echo $GCC_REPO_REVISION > .revision
+
+        #Update
+        # ./contrib/gcc_update --touch
+	# check_error_exit
+
+	# apply_gcc_patches
 	create_gcc_symlinks
 	cd $SRC
     else
-    # gcc svn generated source directory exists already, see if it needs updating 
+    # gcc svn generated source directory exists already, see if it needs updating
 
 	cd $GCC_DIR
-        export GCC_PREV_REVISION=`cat $GCC_DIR/.revision`
-        
-        if [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION > $GCC_PREV_REVISION )); then
-               
-           echo "  >>>> Updating the local GCC source revision from $GCC_PREV_REVISION to $GCC_REPO_REVISION"
-           ./contrib/gcc_update -q
-           echo $GCC_REPO_REVISION > .revision
-        
-        elif [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION == $GCC_PREV_REVISION )); then
-           echo "  >>>> Local GCC source revision $GCC_PREV_REVISION is up-to-date. Skipping."
+        # export GCC_PREV_REVISION=`cat $GCC_DIR/.revision`
 
-        else
-           echo "  >>>> Couldn't determine the local GCC status, try deleting the $GCC_DIR directory."
-        fi
+        # if [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION > $GCC_PREV_REVISION )); then
 
-        check_error_exit
-        cd $SRC
+        #    echo "  >>>> Updating the local GCC source revision from $GCC_PREV_REVISION to $GCC_REPO_REVISION"
+        #    ./contrib/gcc_update -q
+        #    echo $GCC_REPO_REVISION > .revision
+
+        # elif [ -f $GCC_DIR/.revision ] && (( $GCC_REPO_REVISION == $GCC_PREV_REVISION )); then
+        #    echo "  >>>> Local GCC source revision $GCC_PREV_REVISION is up-to-date. Skipping."
+
+        # else
+        #    echo "  >>>> Couldn't determine the local GCC status, try deleting the $GCC_DIR directory."
+        # fi
+
+        # check_error_exit
+         cd $SRC
     fi
-else 
+else
   #gcc not from svn repository
-    
-    
+
+
     if [ ! -d $GCC_DIR ]
     then
 	echo "  >> Unpacking gcc-core-$GCC_VERSION.tar.bz2..."
