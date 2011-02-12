@@ -1,30 +1,12 @@
 ################################################################################
-# Filename          # download.sh
-# Purpose:          # Downloads source components required for TAMP toolchain
-# Description:      # Used by build-tools.sh (not run directly)
-# Copyright:        # Luke A. Guest, David Rees Copyright (C) 2011
+# Filename         # download.sh
+# Purpose          # Downloads source components required for TAMP toolchain
+# Description      # Used by build-tools.sh (not run directly)
+# Copyright        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/bash
 
-function check_error_exit()
-{
-    if [ $? != 0 ]
-    then
-	echo "** Error - Something went wrong!"
-	exit 2;
-    fi
-}
-
-function check_error()
-{
-    if [ $? != 0 ]
-    then
-	echo "** Error - Something went wrong!"
-	exit 2;
-    else
-	touch $1
-    fi
-}
+source ./errors.inc
 
 function check_for_spark()
 {

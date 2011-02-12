@@ -1,12 +1,14 @@
 ################################################################################
-# Filename          # build-tools.sh
-# Purpose:          # Downloads and Builds the TAMP toolchain components
-# Description:      #
-# Copyright:        # Luke A. Guest, David Rees Copyright (C) 2011
+# Filename         # build-tools.sh
+# Purpose          # Downloads and Builds the TAMP toolchain components
+# Description      #
+# Copyright        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/bash
 
-# TOOD:
+source ./errors.inc
+
+# TODO:
 #
 # Add command line options for specifying which compiler to build and also
 # whether to apply (or undo) the patches:
@@ -50,22 +52,6 @@ echo "NewLib Version  : " $NEWLIB_VERSION
 echo "Binutils Version: " $BINUTILS_VERSION
 echo "GCC Version     : " $GCC_VERSION
 echo "GCC source dir  : " $GCC_DIR
-
-################################################################################
-# $1 = Filename to create using touch, used in successive steps to test
-#      if the previous step was completed.
-################################################################################
-function check_error()
-{
-    if [ $? != 0 ]
-    then
-	echo "** Error - Something went wrong!"
-	exit 2;
-    else
-	touch $1
-    fi
-}
-
 
 function apply_cross_gcc_patches()
 {
