@@ -54,6 +54,21 @@ Edit config.inc for your enviroment, i.e. installation directory.
 
 By default the native compiler will also run the testsuite.
 
+                         ***********************
+                         **** IMPORTANT!!!! ****
+                         ***********************
+
+If you decide to use the SVN GCC tree rather than a snapshot of GCC 4.6, you
+will need to update the tree yourself if you want to get a newer revision:
+
+cd src/gcc
+svn update
+
+N.B: I've enforced this as using the script to update the tree causes the
+patches to be overwritten and the build will fail, not only that, the cross
+build will completely destroy the TAMP native build! It is very important
+that this is understood!
+
 Common problems
 ---------------
 
