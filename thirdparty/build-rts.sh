@@ -143,8 +143,10 @@ function build_rts()
 # copy_rts_files
 
 check_board_name $1
-build_rts $1
+#build_rts $1
 create_symlinks $1
+cd $RTS
+BOARD=beagle make
 
 #cd $RTS/boards/$1
 #cd $RTS
