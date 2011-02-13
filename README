@@ -118,3 +118,11 @@ The script will re-apply them for cross builds.
 
   Adds support for ARM in the gnattools. This would need to be modified for
   other bareboard targets where <target>-<toolname> applies.
+
+Bugs
+----
+
+I've submitted the following bug as it's causing a blockage on the progress
+of TAMP:
+
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47717
