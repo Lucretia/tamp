@@ -61,8 +61,8 @@ function apply_cross_gcc_patches()
 
 	if [ ! -f .patched ]
 	then
-	    PATCHES="gnattools.patch" \
-		"gnattools2.patch" \
+	    PATCHES="gnattools2.patch" \
+		"gnattools3.patch" \
 		"gnatlib.patch" \
 		"gnatlib2.patch" \
 		"gnatlib3.patch"
