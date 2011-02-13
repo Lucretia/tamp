@@ -34,7 +34,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 pragma Discard_Names;
-pragma Restrictions (No_Exception_Handlers);
+--  pragma Restrictions (No_Exception_Handlers);
+pragma Restrictions (No_Exception_Propagation);
 
 package System is
    pragma Pure;

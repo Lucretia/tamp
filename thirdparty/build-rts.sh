@@ -72,7 +72,7 @@ function create_dirs()
 {
     cd $RTS
 
-    echo "Creating RTS dirs..."
+    echo "  >> Creating RTS dirs..."
 
     if [ ! -d  obj ]
     then
@@ -162,7 +162,17 @@ function build_rts()
 	    ;;
     esac
 
-    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
+#    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
+
+    BOARD=beagle make
+}
+
+
+function clean_objs()
+{
+    cd $RTS
+
+    rm obj/*
 }
 
 
@@ -171,13 +181,7 @@ function build_rts()
 check_board_name $1
 create_dirs
 create_symlinks $1
-cd $RTS
-BOARD=beagle make
-#build_rts $1
-
-#cd $RTS/boards/$1
-#cd $RTS
-
-#BOARD=$1 make
+build_rts $1
+clean_objs
 
 cd $TOP
