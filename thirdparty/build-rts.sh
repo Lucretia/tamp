@@ -68,6 +68,32 @@ function check_board_name()
     fi
 }
 
+function create_dirs()
+{
+    cd $RTS
+
+    echo "Creating RTS dirs..."
+
+    if [ ! -d  obj ]
+    then
+	mkdir -p obj
+    fi
+
+    if [ ! -d  boards ]
+    then
+	mkdir -p boards
+    fi
+
+    for b in $BOARDS
+    do
+	if [ ! -d boards/$b ]
+	then
+	    mkdir -p boards/$b/adainclude
+	    mkdir -p boards/$b/adalib
+	fi
+    done
+}
+
 # i-c.ads i-c.adb interfac.ads
 SPECS="ada.ads a-unccon.ads a-uncdea.ads s-stoele.ads s-atacco.ads s-maccod.ads gnat.ads g-souinf.ads"
 BODIES="s-stoele.adb s-atacco.adb"
@@ -143,10 +169,11 @@ function build_rts()
 # copy_rts_files
 
 check_board_name $1
-#build_rts $1
+create_dirs
 create_symlinks $1
 cd $RTS
 BOARD=beagle make
+#build_rts $1
 
 #cd $RTS/boards/$1
 #cd $RTS
