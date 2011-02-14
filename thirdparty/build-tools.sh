@@ -46,7 +46,7 @@ source ./config.inc
 if [ -d $BLD ]; then
     while true; do
 	echo    "  WARNING: A TAMP build directory already exists!"
-        read -p "  (R)emove it and continue, (I)gnore and continue, or (e)xit script?" builddir
+        read -p "  (R)emove it and continue, (I)gnore and continue, or (e)xit script? " builddir
 	case $builddir in
 		[R]* ) rm -Rf $BLD; break;;
 		[I]* ) break ;;
@@ -59,20 +59,28 @@ fi
 # Ask nicely about reversing any patches in local gcc, before rebuilding native
 if [ -f $SRC/gcc/.patched ]; then
 	while true; do
-	echo    ""
-cat << "REVERSE_PATCHES"
-  WARNING: It appears that patches have already been applied to the GCC source directory!
 
-  If you have to build the native compiler again after having already built the cross
-  compilers, you will need to reverse the patches, as they're incompatible
-  with the native build. Note: The script will re-apply them for cross builds.
+cat << "REVERSE_PATCHES"
+
+  WARNING: It appears that patches have already been applied
+  to the GCC source directory!
+
+  If you have to build the native compiler again after having
+  already built the cross compilers, you will need to reverse
+  the patches, as they're incompatible with the native build.
+
+  Note: This script will re-apply them for cross builds.
 
 REVERSE_PATCHES
 
 	read -p "  (R)everse GCC patches and continue, (I)gnore and continue, or (e)xit script? " rpatches
 		case $rpatches in
-		    [R]* ) cd $SRC/gcc; cat $TOP/patches/gcc-4.6/* | patch -p1 -i -; rm -f $SRC/gcc/.patched; break;;
-	    	[I]* ) break ;;
+		    [R]* ) cd $SRC/gcc;
+					cat $TOP/patches/gcc-4.6/* | patch -p1 -i -R -f -;
+					rm -f $SRC/gcc/.patched;
+					break;;
+
+			[I]* ) break ;;
 		    [Ee]* ) exit;;
 		    * ) echo "Please answer 'R', 'I' or 'e'.";;
 		esac
@@ -104,10 +112,10 @@ function apply_cross_gcc_patches()
 	cd $SRC/gcc
 
 	if [ ! -f .patched ]; then
-		PATCHES="gnattools.patch gnattools2.patch \
+		PATCHES="gnattools2.patch gnattools3.patch \
 		gnatlib.patch gnatlib2.patch gnatlib3.patch"
 
-		echo "  >> Applying GCC Patches to AMPC Cross..."
+		echo "  >> Applying GCC Patches to AMPC-Cross..."
 		for p in $PATCHES; do
 		patch -p1 < $TOP/patches/gcc-4.6/$p
 
@@ -166,7 +174,7 @@ function build_native_toolchain()
 	    --without-cloog \
 	    --with-system-zlib \
 	    --disable-libgomp \
-	    CFLAGS="-fno-builtin-cproj $EXTRA_NATIVE_CFLAGS" \
+	    CFLAGS="$EXTRA_NATIVE_CFLAGS" \
 	    &> $LOGPRE-gcc-config.txt
 #	    --without-libffi \
 #	    --without-libiconv-prefix \
@@ -186,7 +194,7 @@ function build_native_toolchain()
     fi
 
     if [ ! -f .make-install ]; then
-	    echo "  >> [4/$TASK_COUNT_TOTAL] Installing AMPC Native GCC..."
+	    echo "  >> [4/$TASK_COUNT_TOTAL] Installing AMPC-Native GCC..."
 		make install &> $LOGPRE-gcc-install.txt
 
 	check_error .make-install
