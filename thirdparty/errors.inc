@@ -9,7 +9,7 @@ function check_error_exit()
 {
     if [ $? != 0 ]
     then
-        echo "** Error - Something went wrong!"
+        echo "  ERROR: Something went wrong!"
         exit 2;
     fi
 }
@@ -20,7 +20,7 @@ function check_error()
 {
     if [ $? != 0 ]
     then
-	echo "** Error - Something went wrong!"
+	echo "  ERROR: Something went wrong!"
 	exit 2;
     else
 	touch $1
