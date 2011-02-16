@@ -195,10 +195,11 @@ echo ""
 ################################################################################
 
 function apply_cross_gcc_patches()
-{
-	# Patch gcc trunk source
+{   
+    # Patch gcc trunk source
 	if [ $GCC_FROM_REPO = "yes" ]; then
-	
+	    
+		cd $SRC/gcc
 		if [ ! -f .patched ]; then
 			
 			local PATCHES="gnattools2.patch gnattools3.patch \
