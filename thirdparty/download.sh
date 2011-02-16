@@ -62,7 +62,7 @@ function create_gcc_symlinks()
     fi
 }
 
-# Start the script.
+# Start downloading
 echo "  >> Downloading source packages, this may take a while..."
 
 DIRS="src downloads"
@@ -70,7 +70,7 @@ DIRS="src downloads"
 for d in $DIRS
 do
     if [ ! -d $d ]; then
-	mkdir -p $d
+		mkdir -p $d
     fi
 done
 

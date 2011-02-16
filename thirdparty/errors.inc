@@ -7,8 +7,7 @@
 
 function check_error_exit()
 {
-    if [ $? != 0 ]
-    then
+    if [ $? != 0 ]; then
         echo "  ERROR: Something went wrong!"
         exit 2;
     fi
@@ -18,11 +17,25 @@ function check_error_exit()
 #      if the previous step was completed.
 function check_error()
 {
-    if [ $? != 0 ]
-    then
-	echo "  ERROR: Something went wrong!"
-	exit 2;
+    if [ $? != 0 ]; then
+		echo "  ERROR: Something went wrong!"
+		exit 2;
     else
-	touch $1
+		touch $1
     fi
+}
+
+function display_no_config_error()
+{
+cat << 'NOCONFIG_ERR'
+
+  ERROR: No config.inc found.
+
+  1) cp config-master.inc config.inc
+  2) Edit config.inc for your system
+  3) Run this script again
+
+NOCONFIG_ERR
+    
+    exit 2
 }

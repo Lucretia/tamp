@@ -1,94 +1,177 @@
 ################################################################################
 # Filename         # build-tools.sh
-# Purpose          # Downloads and Builds the TAMP toolchain components
+# Purpose          # Download and batch build toolchain components
 # Description      #
 # Copyright        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/bash
 
-source ./errors.inc
+VERSION="build-script.sh v1.0 (20110216)"
 
-# TODO:
-#
-# Add command line options for specifying which compiler to build and also
-# whether to apply (or undo) the patches:
-#   --native --arm
-#
-# Get rid of the STAGE1* stuff as it was only put in due to thinking we may
-# need to build more than one stage of native compiler, but this is done by
-# GCC anyway.
+usage="\
+$VERSION
+Copyright (C) 2011 Luke A. Guest, David Rees. All Rights Reserved.
+
+Usage: $0 [-t] TARGET
+
+Options:
+
+     --help       display this help and exit.
+     --version    display version info and exit.
+
+     -t TARGET    Build AMPC toolchain for specified TARGET
+
+                  Valid values for TARGET
+                  -----------------------
+                  native
+                  arm-none-eabi
+                  i386-elf
+                  mips-elf
+"
+
+################################################################################
+# Commandline parameters
+################################################################################
+
+while test $# -ne 0; do
+
+	case "$1" in
+
+	# Target
+	-t) operation=$2
+        
+        case $operation in
+          native) targ="native"; break ;;
+          arm-none-eabi) targ="arm-none-eabi"; break ;;
+          i386-elf) targ="i386-elf"; break ;;
+          *) break ;;
+        esac
+        exit $? ;;
+
+
+	# Version
+    --version) echo "$VERSION
+Copyright (C) 2011 Luke A. Guest, David Rees. All Rights Reserved.
+"; exit $?;;
+	
+	# Help
+    --help) echo "$usage"; exit $?;;
+
+	# Invalid
+    -*)	echo "$0: invalid option: $1" >&2 ;	exit 1;;
+
+	# Default
+     *) break ;;
+	esac
+
+done
+
+
+clear
+cat <<START
+
+  This script is provided to simplify the installation of the Ada Microkernel
+  Project Compilers (Native and Cross). For basic usage information, run:
+
+  ./build-script.sh --help
+
+  THIS SOFTWARE IS PROVIDED BY THE  COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY  EXPRESS OR IMPLIED WARRANTIES,  INCLUDING, BUT NOT LIMITED  TO, THE
+  IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR  A PARTICULAR PURPOSE
+  ARE  DISCLAIMED. IN  NO EVENT  SHALL  THE COPYRIGHT  HOLDER OR  CONTRIBUTORS
+  BE  LIABLE FOR  ANY  DIRECT, INDIRECT,  INCIDENTAL,  SPECIAL, EXEMPLARY,  OR
+  CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT  LIMITED  TO,  PROCUREMENT  OF
+  SUBSTITUTE GOODS  OR SERVICES; LOSS  OF USE,  DATA, OR PROFITS;  OR BUSINESS
+  INTERRUPTION)  HOWEVER CAUSED  AND ON  ANY THEORY  OF LIABILITY,  WHETHER IN
+  CONTRACT,  STRICT LIABILITY,  OR  TORT (INCLUDING  NEGLIGENCE OR  OTHERWISE)
+  ARISING IN ANY WAY  OUT OF THE USE OF THIS SOFTWARE, EVEN  IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+  Copyright (C) 2011 Luke A. Guest, David Rees. All Rights Reserved.
+  
+  Hit RETURN to continue.
+START
+
+read x
+
+#exit
+
+source ./errors.inc
 
 ################################################################################
 # Logs from various stages of the build process are placed in the build/logs
 # directory and has a standardised naming, i.e.
 #   [description]-[config|make|check|install].txt
 ################################################################################
-clear
 
 if [ ! -f ./config.inc ]; then
-
-cat << 'NOCONFIG_ERR'
-
-  ERROR: No config.inc found.
-
-  1) cp config-master.inc config.inc
-  2) Edit config.inc for your system
-  3) Run this script again
-
-NOCONFIG_ERR
-    
-    exit 2
+	display_no_config_error
+else
+	source ./config.inc
 fi
-
-source ./config.inc
 
 # Ask nicely before deleting anything
 if [ -d $BLD ]; then
     while true; do
-	echo    "  WARNING: A TAMP build directory already exists!"
-        read -p "  (R)emove it and continue, (I)gnore and continue, or (e)xit script? " builddir
+        echo    "  ----------------------------------------------"
+		echo    "  -- NOTE: Toolchain build directories exist! --"
+		echo    "  ----------------------------------------------"
+        read -p "  (R)emove all build directories, (c)ontinue, or (e)xit script? " builddir
 	case $builddir in
 		[R]* ) rm -Rf $BLD; break;;
-		[I]* ) break ;;
+		[Cc]* ) break ;;
 		[Ee]* ) exit;;
-		* ) echo "Please answer 'R', 'I' or 'e'.";;
+		* ) echo "  Please answer 'R', '[C/c]' or '[E/e]'.";;
 	esac
     done
 fi
 
-# Ask nicely about reversing any patches in local gcc, before rebuilding native
+################################################################################
+# Reverse patches if needed, before rebuilding native
+################################################################################
+
+function reverse_patches()
+{
+	cd $SRC/gcc;
+	cat $TOP/patches/gcc-4.6/* | patch -p1 -s -t -d $SRC/gcc -i -;
+	rm -f $SRC/gcc/.patched;
+    
+}
+
+
 if [ -f $SRC/gcc/.patched ]; then
 	while true; do
 
-cat << "REVERSE_PATCHES"
+cat<<REVERSE_PATCHES
 
-  WARNING: It appears that patches have already been applied
-  to the GCC source directory!
+  WARNING: It appears that patches have already been applied to the src/gcc
+  directory!
 
-  If you have to build the native compiler again after having
-  already built the cross compilers, you will need to reverse
-  the patches, as they're incompatible with the native build.
+  If you have to build the native compiler again after having already built
+  the cross compilers, you will need to reverse the patches, as they're
+  incompatible with the native build.
 
-  Note: This script will re-apply them for cross builds.
+  Note: This script will try to re-apply them for cross builds.
 
 REVERSE_PATCHES
 
-	read -p "  (R)everse GCC patches and continue, (I)gnore and continue, or (e)xit script? " rpatches
+	read -p "  Try to (R)everse the patches and continue, (I)gnore, or (e)xit script? " rpatches
 		case $rpatches in
-		    [R]* ) cd $SRC/gcc;
-					cat $TOP/patches/gcc-4.6/* | patch -p1 -i -R -f -;
-					rm -f $SRC/gcc/.patched;
-					break;;
-
-			[I]* ) break ;;
-		    [Ee]* ) exit;;
-		    * ) echo "Please answer 'R', 'I' or 'e'.";;
+		    [R]*) reverse_patches; break;;
+			[I]*) break ;;
+		    [Ee]*) exit;;
+		    *) echo "  Please answer 'R', 'I' or '[E/e]'.";;
 		esac
 	done
 fi
 
-cd $TOP
 
+################################################################################
+# Display some configuration details
+################################################################################
+
+cd $TOP
+echo ""
 echo "  Source Dir       : " $SRC
 echo "  Build Dir        : " $BLD
 echo "  Log Dir          : " $LOG
@@ -105,31 +188,38 @@ echo "  NewLib Version   : " $NEWLIB_VERSION
 echo "  Binutils Version : " $BINUTILS_VERSION
 echo "  GCC Version      : " $GCC_VERSION
 echo "  GCC Source Dir   : " $GCC_DIR
+echo ""
+
+################################################################################
+# GCC patches for AMPC-Cross
+#
+################################################################################
 
 function apply_cross_gcc_patches()
 {
-    if [ $GCC_FROM_REPO = "yes" ]; then
-	cd $SRC/gcc
+	# Patch gcc trunk source
+	if [ $GCC_FROM_REPO = "yes" ]; then
+	
+		if [ ! -f .patched ]; then
+			
+			local PATCHES="gnattools2.patch gnattools3.patch \
+			gnatlib.patch gnatlib2.patch gnatlib3.patch"
 
-	if [ ! -f .patched ]; then
-		PATCHES="gnattools2.patch gnattools3.patch \
-		gnatlib.patch gnatlib2.patch gnatlib3.patch"
-
-		echo "  >> Applying GCC Patches to AMPC-Cross..."
-		for p in $PATCHES; do
-		patch -p1 < $TOP/patches/gcc-4.6/$p
-
-		check_error .patched
-	    done
-	fi
+			echo "  >> Patching GCC Sources for AMPC-Cross..."
+			for p in $PATCHES; do
+				patch -p1 -s -d $SRC/gcc < $TOP/patches/gcc-4.6/$p
+				check_error .patched
+			done
+		fi
+	# Patch gcc snapshots or releases
     else
-	cd $SRC/gcc-$GCC_VERSION
 
-	if [ ! -f .patched ]; then
-		patch -p1 < $TOP/patches/gcc-4.5.2-cross-arm.patch
+		cd $SRC/gcc-$GCC_VERSION
 
-	    check_error .patched
-	fi
+		if [ ! -f .patched ]; then
+			patch -p1 < $TOP/patches/gcc-4.5.2-cross-arm.patch
+			check_error .patched
+		fi
     fi
 }
 
@@ -144,19 +234,17 @@ function build_native_toolchain()
     cd $BLD
 
     VER="native"
-    STAGE="$VER/stage1"
     DIRS="gcc"
+    LOGPRE=$LOG/native
+    CBD=$BLD/$VER
 
     echo "  >> [1/$TASK_COUNT_TOTAL] Creating Directories (if needed)..."
 
     for d in $DIRS; do
-	if [ ! -d $STAGE/$d ]; then
-		mkdir -p $STAGE/$d
+	if [ ! -d $VER/$d ]; then
+		mkdir -p $VER/$d
 	fi
     done
-
-    LOGPRE=$LOG/native-stage1
-    CBD=$BLD/$STAGE
 
     # Build the native GCC compiler.
     cd $CBD/gcc
@@ -175,34 +263,33 @@ function build_native_toolchain()
 	    --with-system-zlib \
 	    --disable-libgomp \
 	    CFLAGS="$EXTRA_NATIVE_CFLAGS" \
-	    &> $LOGPRE-gcc-config.txt
-#	    --without-libffi \
-#	    --without-libiconv-prefix \
-#	    --disable-libmudflap \
-#	    --disable-nls \
-#	    --disable-libstdcxx-pch \
-#	    &> $LOGPRE-gcc-config.txt
+	    --without-libffi \
+	    --without-libiconv-prefix \
+	    --disable-libmudflap \
+	    --disable-nls \
+	    --disable-libstdcxx-pch \
+	    &> $LOGPRE-gcc-$GCC_VERSION-configure.txt
 
 	check_error .config
     fi
 
     if [ ! -f .make ]; then
 	    echo "  >> [3/$TASK_COUNT_TOTAL] Building and Bootstrapping AMPC-Native GCC..."
-		make $JOBS &> $LOGPRE-gcc-make.txt
+		make $JOBS &> $LOGPRE-gcc-$GCC_VERSION-make.txt
 
 	check_error .make
     fi
 
     if [ ! -f .make-install ]; then
 	    echo "  >> [4/$TASK_COUNT_TOTAL] Installing AMPC-Native GCC..."
-		make install &> $LOGPRE-gcc-install.txt
+		make install &> $LOGPRE-gcc-$GCC_VERSION-install.txt
 
 	check_error .make-install
     fi
 
     if [ ! -f .test-gcc ]; then
 	    echo "  >> [5/$TASK_COUNT_TOTAL] Testing AMPC-Native GCC..."
-		make -k check-gcc &> $LOGPRE-gcc-test.txt
+		make -k check-gcc &> $LOGPRE-gcc-$GCC_VERSION-test.txt
 
 	check_error .test-gcc
     fi
@@ -454,10 +541,13 @@ function build_u_boot()
     cd $TOP
 }
 
-# Installation of the GNAT wrappers where we cannot build cross versions
+################################################################################
+# Install GNAT wrappers where we cannot build cross versions
 # of the gnattools
 # $1 = target (i.e. arm-none-eabi)
 # $2 = install directory
+################################################################################
+
 function install_wrappers()
 {
     WRAPPERS="gnatmake gnatlink"
@@ -472,20 +562,50 @@ function install_wrappers()
     done
 }
 
+################################################################################
+# Download and unpack sources
+################################################################################
+
 $TOP/download.sh
+
+################################################################################
+# Prepare log directory, start building
+################################################################################
 
 if [ ! -d $LOG ]; then
     mkdir -p $LOG
 fi
 
-build_native_toolchain
-build_toolchain arm-none-eabi --enable-interwork
-#build_toolchain i386-elf
-#build_toolchain mips-elf
+TIMEFORMAT=$'  Last Process Took: %2lR';
+# Begin the specified build operation
+case "$targ" in
+	native)				
+					time( build_native_toolchain );
+					;;
+
+	arm-none-eabi)
+					time( build_toolchain arm-none-eabi --enable-interwork );
+					#build_u_boot arm-none-eabi
+					#install_wrappers arm-none-eabi $PREFIX/bin
+					;;
+	i386-elf)
+					time ( build-toolchain i386-elf );
+					;;
+
+	mips-elf)
+					time ( build-toolchain mips-elf );
+					;;
+
+	*)
+					# Default / Batch
+					time ( build_native_toolchain );
+					time ( build_toolchain arm-none-eabi --enable-interwork );
+					#build_toolchain i386-elf;
+					#build_toolchain mips-elf;
+					;;
+esac
 
 #build_u_boot arm-none-eabi
-
 #install_wrappers arm-none-eabi $PREFIX/bin
 
-# Get back to the thirdparty directory.
-cd $TOP
+exit 0
