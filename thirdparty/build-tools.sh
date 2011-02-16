@@ -66,7 +66,6 @@ Copyright (C) 2011 Luke A. Guest, David Rees. All Rights Reserved.
 
 done
 
-
 clear
 cat <<START
 
@@ -195,11 +194,12 @@ echo ""
 ################################################################################
 
 function apply_cross_gcc_patches()
-{   
+{    
     # Patch gcc trunk source
 	if [ $GCC_FROM_REPO = "yes" ]; then
-	    
+
 		cd $SRC/gcc
+
 		if [ ! -f .patched ]; then
 			
 			local PATCHES="gnattools2.patch gnattools3.patch \
@@ -579,25 +579,23 @@ fi
 TIMEFORMAT=$'  Last Process Took: %2lR';
 # Begin the specified build operation
 case "$targ" in
-	native)				
-					time( build_native_toolchain );
+
+	native)			time( build_native_toolchain );
 					;;
 
-	arm-none-eabi)
-					time( build_toolchain arm-none-eabi --enable-interwork );
+
+	arm-none-eabi)	time( build_toolchain arm-none-eabi --enable-interwork );
 					#build_u_boot arm-none-eabi
 					#install_wrappers arm-none-eabi $PREFIX/bin
 					;;
-	i386-elf)
-					time ( build-toolchain i386-elf );
+
+	i386-elf)		time( build_toolchain i386-elf );
 					;;
 
-	mips-elf)
-					time ( build-toolchain mips-elf );
+	mips-elf)		time( build_toolchain mips-elf );
 					;;
 
-	*)
-					# Default / Batch
+	*)				# Default / Batch
 					time ( build_native_toolchain );
 					time ( build_toolchain arm-none-eabi --enable-interwork );
 					#build_toolchain i386-elf;
