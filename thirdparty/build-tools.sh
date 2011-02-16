@@ -6,7 +6,7 @@
 ################################################################################
 #!/bin/bash
 
-VERSION="build-script.sh v1.0 (20110216)"
+VERSION="build-tools.sh v1.0 (20110216)"
 
 usage="\
 $VERSION
@@ -73,7 +73,7 @@ cat <<START
   This script is provided to simplify the installation of the Ada Microkernel
   Project Compilers (Native and Cross). For basic usage information, run:
 
-  ./build-script.sh --help
+  ./build-tools.sh --help
 
   THIS SOFTWARE IS PROVIDED BY THE  COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY  EXPRESS OR IMPLIED WARRANTIES,  INCLUDING, BUT NOT LIMITED  TO, THE
@@ -132,10 +132,9 @@ fi
 
 function reverse_patches()
 {
-	cd $SRC/gcc;
+	echo "  >> Reversing patches that were previously applied to src/gcc"
 	cat $TOP/patches/gcc-4.6/* | patch -p1 -s -t -d $SRC/gcc -i -;
-	rm -f $SRC/gcc/.patched;
-    
+	rm -f $SRC/gcc/.patched;    
 }
 
 
