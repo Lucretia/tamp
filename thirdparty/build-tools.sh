@@ -41,9 +41,9 @@ while test $# -ne 0; do
 	-t) operation=$2
         
         case $operation in
-          native) targ="native"; break ;;
-          arm-none-eabi) targ="arm-none-eabi"; break ;;
-          i386-elf) targ="i386-elf"; break ;;
+          native) targ="native"; break;;
+          arm-none-eabi) targ="arm-none-eabi"; break;;
+          i386-elf) targ="i386-elf"; break;;
           *) break ;;
         esac
         exit $? ;;
@@ -117,10 +117,10 @@ if [ -d $BLD ]; then
 		echo    "  ----------------------------------------------"
         read -p "  (R)emove all build directories, (c)ontinue, or (e)xit script? " builddir
 	case $builddir in
-		[R]* ) rm -Rf $BLD; break;;
-		[Cc]* ) break ;;
-		[Ee]* ) exit;;
-		* ) echo "  Please answer 'R', '[C/c]' or '[E/e]'.";;
+		[R]*) rm -Rf $BLD; break;;
+		[Cc]*) break;;
+		[Ee]*) exit;;
+		*) echo "  Please answer 'R', '[C/c]' or '[E/e]'.";;
 	esac
     done
 fi
@@ -128,7 +128,6 @@ fi
 ################################################################################
 # Reverse patches if needed, before rebuilding native
 ################################################################################
-
 function reverse_patches()
 {
 	echo "  >> Reversing patches that were previously applied to src/gcc"
@@ -174,9 +173,9 @@ echo "  Source Dir       : " $SRC
 echo "  Build Dir        : " $BLD
 echo "  Log Dir          : " $LOG
 echo "  Install Dir      : " $TAMP
-echo "  Stage 1 Dir      : " $STAGE1_PREFIX
-echo "  Stage 1 Libs Dir : " $STAGE1_LIBS_PREFIX
-echo "  Stage 2 Dir      : " $STAGE2_PREFIX
+#echo "  Stage 1 Dir      : " $STAGE1_PREFIX
+#echo "  Stage 1 Libs Dir : " $STAGE1_LIBS_PREFIX
+#echo "  Stage 2 Dir      : " $STAGE2_PREFIX
 echo "  Cross Dir        : " $CROSS_PREFIX
 echo "  Parallelism      : " $JOBS
 echo "  GMP Version      : " $GMP_VERSION
@@ -579,28 +578,26 @@ fi
 TIMEFORMAT=$'  Last Process Took: %2lR';
 # Begin the specified build operation
 case "$targ" in
-
-	native)			time( build_native_toolchain );
+	native)	 		{ time { build_native_toolchain; } }
 					;;
 
-
-	arm-none-eabi)	time( build_toolchain arm-none-eabi --enable-interwork );
+	arm-none-eabi)	 { time { build_toolchain arm-none-eabi --enable-interwork; } }
 					#build_u_boot arm-none-eabi
 					#install_wrappers arm-none-eabi $PREFIX/bin
 					;;
 
-	i386-elf)		time( build_toolchain i386-elf );
+	i386-elf)		{ time { build_toolchain i386-elf; } }
 					;;
 
-	mips-elf)		time( build_toolchain mips-elf );
+	mips-elf)		{ time { build_toolchain mips-elf; } }
 					;;
 
 	*)				# Default / Batch
-					time ( build_native_toolchain );
-					time ( build_toolchain arm-none-eabi --enable-interwork );
+					{ time { build_native_toolchain;
+					#time ( build_toolchain arm-none-eabi --enable-interwork );
 					#build_toolchain i386-elf;
 					#build_toolchain mips-elf;
-					;;
+					} };;
 esac
 
 #build_u_boot arm-none-eabi
