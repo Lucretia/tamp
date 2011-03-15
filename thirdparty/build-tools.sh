@@ -399,6 +399,48 @@ function build_toolchain()
     cd $BLD
 }
 
+function build_qemu()
+{
+    cd $BLD
+
+    if [ ! -d qemu ]
+    then
+	mkdir -p qemu
+    fi
+
+    cd qemu
+
+    if [ ! -f .config ]
+    then
+	echo "  >> Configuring qemu..."
+
+	$SRC/qemu/configure --prefix=$TAMP \
+	    --extra-cflags="-Wunused-function" \
+	    --disable-werror \
+	    &> $LOG/qemu-config.txt
+
+	check_error .config
+    fi
+
+    if [ ! -f .make ]
+    then
+	echo "  >> Building qemu..."
+
+	make config-host.h all &> $LOG/qemu-make.txt
+
+	check_error .make
+    fi
+
+    if [ ! -f .make-install  ]
+    then
+	echo "  >> Installing qemu..."
+
+	make install &> $LOG/qemu-make-install.txt
+
+	check_error .make-install
+    fi
+}
+
 # U-Boot requires libgcc!
 function build_u_boot()
 {
@@ -458,6 +500,8 @@ build_toolchain arm-none-eabi --enable-interwork
 #build_u_boot arm-none-eabi
 
 #install_wrappers arm-none-eabi $PREFIX/bin
+
+build_qemu
 
 # Get back to the thirdparty directory.
 cd $TOP
