@@ -75,6 +75,14 @@ patches to be overwritten and the build will fail, not only that, the cross
 build will completely destroy the TAMP native build! It is very important
 that this is understood!
 
+Dependencies
+------------
+
+Building the native compiler will also run the testsuite on GNAT, there is no
+flag to turn this on/off yet so you will require the following packages:
+
+  dejagnu, expect, tcl
+
 Common problems
 ---------------
 
