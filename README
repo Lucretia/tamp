@@ -18,21 +18,27 @@ implementation lanaguage.
 To get the toolchain built, enter the thirdparty directory, copy the
 config-master.inc file to config.inc, edit this and then run the following
 command:
-  ./build-tools.sh
+  ./build-tools.sh -t native
 
-This will install the various tools required to the directories of your choice.
-On my x86-64 Ubuntu install, this process takes approximately 3GB of disk space.
+This will compile and install the latest version of GCC (4.6.0) to the directory
+of your choice. On my Debian Squeeze machine, this process takes approximately
+2.4GB of disk space.
 
 The toolchain has bee built on the following machines:
 
 * Ubuntu 10.4 with GNAT/GCC 4.4.3
+* Debian Squeeze with GNAT/GCC 4.4.5
 
-Dependencies
-------------
+You will then require a target toolchain, currently we are targetting ARM:
 
-PPL requires that you have texlive-math-extra installed on your machine so that
-it can generate the documentation, I haven't found a way of disabling the
-generation of the docs yet.
+  ./build-tools.sh -t arm-none-eabi
+
+This takes approximately, 1.2GB on my machine.
+
+After building the toolchain, you will then require a runtime library for the
+board you intend to build TAMP for:
+
+  ./build-rts.sh <boardname>
 
 Getting started
 ---------------
@@ -118,6 +124,9 @@ The script will re-apply them for cross builds.
 
   Adds support for ARM in the gnattools. This would need to be modified for
   other bareboard targets where <target>-<toolname> applies.
+
+* Building libs/apps requires the --RTS=$TAMP_SRC_DIR/rts/boards/<boardname> flag
+to be set and passed to gnatmake.
 
 Bugs
 ----
