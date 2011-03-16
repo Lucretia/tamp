@@ -5,7 +5,7 @@
 # Copyright        # Luke A. Guest, David Rees Copyright (C) 2011
 ################################################################################
 #!/bin/sh
-
+clear
 source ./errors.inc
 
 # This defines the boards we currently support. This will also define where
@@ -14,7 +14,7 @@ BOARDS="beagle pc"
 
 function list_boards()
 {
-    echo "Boardname is one of:"
+    echo "  Boardname is one of:"
 
     for b in $BOARDS
     do
@@ -22,22 +22,28 @@ function list_boards()
     done
 }
 
-if [ ! -f ./config.inc ]
-then
-    echo "Error! No config.inc"
-    echo "  cp config-master.inc config.inc"
-    echo "  ./build-tools.sh"
-    echo ""
-    echo "  Edit config.inc for your system and run this script again."
+if [ ! -f ./config.inc ]; then
+
+cat << 'NOCONFIG_ERR'
+
+  ERROR: No config.inc found.
+
+  1) cp config-master.inc config.inc
+  2) Edit config.inc for your system
+  3) ./build-tools.sh
+  4) Run this script again
+
+NOCONFIG_ERR
 
     exit 2
+
 else
     source ./config.inc
 fi
 
 if [ $# != 1 ]
 then
-    echo "Usage:"
+    echo "  Usage:"
     echo "  ./build-rts.sh <boardname>"
     echo ""
 
@@ -46,7 +52,7 @@ then
     exit 2
 fi
 
-echo "Creating RTS with GCC-$GCC_VERSION for '$1' board"
+echo "  Creating RTS with GCC-$GCC_VERSION for '$1' board"
 
 export PATH=$TAMP/bin:$PATH
 export LD_LIBRARY_PATH=$TAMP/lib$BITS:$LD_LIBRARY_PATH
@@ -59,7 +65,7 @@ function check_board_name()
 {
     if [[ ! $BOARDS =~ $1 ]]
     then
-	echo "** Error - Incorrect board name selected"
+	echo "  ERROR: Incorrect board name selected"
 	echo ""
 
 	list_boards

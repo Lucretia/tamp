@@ -7,7 +7,7 @@ library project gnat is
    for Object_Dir use "obj";
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat2005", "-a", "-gnatg");
+      for Default_Switches ("Ada") use ("-gnat05", "-a", "-gnatg");
    end Builder;
 
    package Compiler is
