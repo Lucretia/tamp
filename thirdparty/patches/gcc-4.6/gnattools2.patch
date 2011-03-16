@@ -11,7 +11,7 @@
 +            Target_Name (Target_Name'First .. Target_Name'First + 12) =
 +                                               "arm-none-eabi"
 +          then
-+             return "arm-eabi-";
++             return "arm-none-eabi-";
 +          else
 +             return "arm-elf-";
 +          end if;
