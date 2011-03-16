@@ -122,7 +122,7 @@ The script will re-apply them for cross builds.
 Bugs
 ----
 
-I've submitted the following bug as it's causing a blockage on the progress
-of TAMP:
+I've submitted the following bug as the compiler cannot create a libgnat.a from
+a GPR file, this has to be done via make, it is no longer a blocker:
 
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47717
+  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47717
