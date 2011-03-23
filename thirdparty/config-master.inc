@@ -63,7 +63,7 @@ export BINUTILS_VERSION=2.21
 ##### BINUTILS #################################################################
 
 if [ $BINUTILS_SNAPSHOT == "yes" ]; then
-    export BINUTILS_VERSION=2.21.51
+    export BINUTILS_VERSION=2.21
     export BINUTILS_TARBALL=ftp://sourceware.org/pub/binutils/snapshots/binutils-$BINUTILS_VERSION.tar.bz2
 else
     export BINUTILS_VERSION=2.21
@@ -75,6 +75,7 @@ fi
 
 if [ $GCC_FROM_REPO == "yes" ]; then
     export GCC_REPO=svn://gcc.gnu.org/svn/gcc/trunk
+	export GCC_REPO=svn://gcc.gnu.org/svn/gcc/branches/gcc-4_6-branch
     export GCC_VERSION="svn-trunk"
     export GCC_DIR=$SRC/gcc
 else
@@ -90,7 +91,7 @@ fi
 
 # export U_BOOT_VERSION=1.3.4
 export NEWLIB_VERSION=1.19.0
-# export PPL_VERSION=0.11
+# export PPL_VERSION=0.11.2
 # export CLOOG_PPL_VERSION=0.15.10
 
 export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
@@ -101,6 +102,7 @@ export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 # export U_BOOT_MIRROR=ftp://ftp.denx.de/pub/u-boot
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
 # export PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
+export PPL_MIRROR=ftp://ftp.cs.unipr.it/pub/ppl/releases/$PPL_VERSION
 # export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 # export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
 # export SPARK_FILE=spark-gpl-2010-SMT-x86_64-pc-linux-gnu.tar.gz
