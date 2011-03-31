@@ -1,4 +1,4 @@
-bg                    The Ada Microkernel Project (TAMP)
+                    The Ada Microkernel Project (TAMP)
 
 -------------------------------------------------------------------------------
 Legal
@@ -151,8 +151,10 @@ a GPR file, this has to be done via make, it is no longer a blocker:
 
   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47717 - CLOSED
 
+
+-------------------------------------------------------------------------------
 TODO
-----
+-------------------------------------------------------------------------------
 
 Add a check for each tool used, patch, svn, git, bison, flex and exit completely
 if they're not available.
