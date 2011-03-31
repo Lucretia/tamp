@@ -1,68 +1,71 @@
 bg                    The Ada Microkernel Project (TAMP)
 
+-------------------------------------------------------------------------------
 Legal
------
+-------------------------------------------------------------------------------
 
 Copright © 2011, Luke A. Guest & Dave Rees, all rights reserved.
 
 License is GPL v2 until further notice and is subject to change during
 development.
 
-
+-------------------------------------------------------------------------------
 Introduction
-------------
+-------------------------------------------------------------------------------
 
 The aim of this project is to create a simple microkernel using Ada as the
 implementation lanaguage.
 
-To get the toolchain built, enter the thirdparty directory, copy the
-config-master.inc file to config.inc, edit this and then run the following
-command:
+To get the toolchain built, enter the thirdparty directory, and copy the
+config-master.inc file to config.inc, edit config.inc and then run the following
+command to build the native toolchain:
+
   ./build-tools.sh -t native
 
 This will compile and install the latest version of GCC (4.6.0) to the directory
-of your choice. On my Debian Squeeze machine, this process takes approximately
+of your choice. With a Debian Squeeze machine, this process takes approximately
 2.4GB of disk space.
 
-The toolchain has bee built on the following machines:
+The toolchain has been built on the following machines:
 
-* Ubuntu 10.4 with GNAT/GCC 4.4.3
-* Debian Squeeze with GNAT/GCC 4.4.5
+* Ubuntu 10.4; GNAT/GCC 4.4.3
+* Debian Squeeze; GNAT/GCC 4.4.5, GNAT/GPL GCC 4.3.6
 
-You will then require a target toolchain, currently we are targetting ARM:
+You then need to build a target toolchain, here we are targeting ARM:
+NB. This process requires approximately 1.2GB free space.
 
   ./build-tools.sh -t arm-none-eabi
-
-This takes approximately, 1.2GB on my machine.
 
 After building the toolchain, you will then require a runtime library for the
 board you intend to build TAMP for:
 
   ./build-rts.sh <boardname>
 
+-------------------------------------------------------------------------------
 Getting started
----------------
+-------------------------------------------------------------------------------
 
 TAMP uses GCC-4.6 due to the total inability of previous versions to build an
 Ada cross compiler, we've still had to hack the main makefile and configure
 script to enable this even though AdaCore have apparently fixed this which they
 haven't, but it works. So the first thing you will need is a toolchain:
 
-1) Native to your OS
-2) Cross compilers for the target you want to build TAMP for (i.e. ARM)
+1) Native Toolchain for your host OS
+2) Cross Toolchain for the target you want to build TAMP for (i.e. ARM)
 
 cd thirdparty
 cp config-master.inc config.inc
 
 Edit config.inc for your enviroment, i.e. installation directory.
+For help on commands: ./build-tools.sh --help 
 
-./build-tools.sh (or sudo to install as root, this will create root owned dirs)
+Note: You can use sudo to install as root, but that would create root owned dirs.
 
 By default the native compiler will also run the testsuite.
 
-                         ***********************
-                         **** IMPORTANT!!!! ****
-                         ***********************
+***********************
+**** IMPORTANT!!!! ****
+***********************
 
 If you decide to use the SVN GCC tree rather than a snapshot of GCC 4.6, you
 will need to update the tree yourself if you want to get a newer revision:
@@ -75,16 +78,18 @@ patches to be overwritten and the build will fail, not only that, the cross
 build will completely destroy the TAMP native build! It is very important
 that this is understood!
 
+-------------------------------------------------------------------------------
 Dependencies
-------------
+-------------------------------------------------------------------------------
 
 Building the native compiler will also run the testsuite on GNAT, there is no
 flag to turn this on/off yet so you will require the following packages:
 
   dejagnu, expect, tcl
 
+-------------------------------------------------------------------------------
 Common problems
----------------
+-------------------------------------------------------------------------------
 
 When building the cross gnattools, if the following error occurs:
 
@@ -95,8 +100,9 @@ that the native tools have built and installed themselves properly into $TAMP
 otherwise the gnatmake found will be the system one and s-os_lib may not
 have Create_Temp_Output_File subprogram defined.
 
+-------------------------------------------------------------------------------
 Caveats
--------
+-------------------------------------------------------------------------------
 
 If you have to build the native compiler again after having built the cross
 compilers, you will have to reverse the patches applied as they're incompatible
@@ -136,8 +142,9 @@ The script will re-apply them for cross builds.
 * Building libs/apps requires the --RTS=$TAMP_SRC_DIR/rts/boards/<boardname> flag
 to be set and passed to gnatmake.
 
+-------------------------------------------------------------------------------
 Bugs
-----
+-------------------------------------------------------------------------------
 
 I've submitted the following bug as the compiler cannot create a libgnat.a from
 a GPR file, this has to be done via make, it is no longer a blocker:

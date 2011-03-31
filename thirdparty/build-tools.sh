@@ -6,7 +6,7 @@
 ################################################################################
 #!/bin/bash
 
-VERSION="build-tools.sh v1.0 (20110216)"
+VERSION="build-tools.sh v1.0 (20110324)"
 
 usage="\
 $VERSION
@@ -278,6 +278,11 @@ function build_native_toolchain()
 
 	check_error .make
     fi
+
+	# Remove any old install directory if it exists
+	if [ ! -d $TAMP ]; then
+		rm -Rf $TAMP;
+	fi
 
     if [ ! -f .make-install ]; then
 	    echo "  >> [4/$TASK_COUNT_TOTAL] Installing AMPC-Native GCC..."
