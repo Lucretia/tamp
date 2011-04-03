@@ -1,15 +1,25 @@
 # TODO: Use this until gnatmake can build a lib.
 #BOARD	=	pc
 
+DEBUG		=	-g
+#DEBUG		=	-O2
+
 ifeq ($(BOARD),pc)
-TARGET	=
+TARGET		=
 else
 ifeq ($(BOARD),beagle)
-TARGET	=	arm-none-eabi-
+TARGET		=	arm-none-eabi-
+ADAFLAGS	=	-mcpu=cortex-a8
+else
+ifeq ($(BOARD),xpresso1769)
+TARGET		=	arm-none-eabi-
+ADAFLAGS	=	-mcpu=cortex-m3 -mthumb
+endif
 endif
 endif
 
-FLAGS	=	-c -gnat2005 -gnatg -O2 -ffunction-sections -fdata-sections \
+FLAGS	=	-c -gnat2005 $(ADAFLAGS) $(DEBUG) -gnatg \
+		-ffunction-sections -fdata-sections \
 		-nostdinc -nostdlib --RTS=./boards/$(BOARD)
 #		-I./src/boards/$(BOARD)
 
