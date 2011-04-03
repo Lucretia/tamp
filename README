@@ -85,7 +85,7 @@ Dependencies
 Building the native compiler will also run the testsuite on GNAT, there is no
 flag to turn this on/off yet so you will require the following packages:
 
-  dejagnu, expect, tcl
+  dejagnu, expect, tcl, bison, flex, patch.
 
 -------------------------------------------------------------------------------
 Common problems
@@ -158,3 +158,23 @@ TODO
 
 Add a check for each tool used, patch, svn, git, bison, flex and exit completely
 if they're not available.
+
+Add the options from:
+http://gcc.gnu.org/onlinedocs/gcc-4.6.0/gnat_rm/Strict-Conformance-to-the-Ada-Reference-Manual.html#Strict-Conformance-to-the-Ada-Reference-Manual
+
+Find out how s-hibaen.ads is used, can we use it? In gcc/ada/system.ads there
+is a "High_Integrity_Mode" flag which is marked as obsolete. This flag doesn't
+exist in the target system specs.
+
+-------------------------------------------------------------------------------
+REFERENCES
+-------------------------------------------------------------------------------
+
+Cortex-M3:
+
+Cortex™-M3 Technical Reference Manual:
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0337i/index.html
+
+ARMv7-M Architecture Reference Manual:
+http://infocenter.arm.com/help/topic/com.arm.doc.ddi0403c/index.html
+
