@@ -10,7 +10,7 @@ source ./errors.inc
 
 # This defines the boards we currently support. This will also define where
 # the RTS is built.
-BOARDS="beagle pc"
+BOARDS="xpresso1769 beagle pc"
 
 function list_boards()
 {
@@ -163,14 +163,14 @@ function build_rts()
 	"pc")
 	    GNATMAKE="gnatmake"
 	    ;;
-	"beagle")
+	"beagle" | "xpresso1769")
 	    GNATMAKE="arm-none-eabi-gnatmake"
 	    ;;
     esac
 
 #    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
 
-    BOARD=beagle make
+    BOARD=$1 make
 }
 
 
