@@ -100,8 +100,8 @@ function create_dirs()
     done
 }
 
-# i-c.ads i-c.adb interfac.ads
-SPECS="ada.ads a-unccon.ads a-uncdea.ads s-stoele.ads s-atacco.ads s-maccod.ads gnat.ads g-souinf.ads"
+# i-c.ads i-c.adb 
+SPECS="ada.ads a-unccon.ads a-uncdea.ads gnat.ads g-souinf.ads interfac.ads s-stoele.ads s-atacco.ads s-maccod.ads"
 BODIES="s-stoele.adb s-atacco.adb"
 
 # function copy_rts_files()

@@ -9,35 +9,42 @@ TARGET		=
 else
 ifeq ($(BOARD),beagle)
 TARGET		=	arm-none-eabi-
-ADAFLAGS	=	-mcpu=cortex-a8
+TARGETFLAGS	=	-mcpu=cortex-a8
 else
 ifeq ($(BOARD),xpresso1769)
 TARGET		=	arm-none-eabi-
-ADAFLAGS	=	-mcpu=cortex-m3 -mthumb
+TARGETFLAGS	=	-mcpu=cortex-m3 -mthumb
 endif
 endif
 endif
 
-FLAGS	=	-c -gnat2005 $(ADAFLAGS) $(DEBUG) -gnatg \
-		-ffunction-sections -fdata-sections \
-		-nostdinc -nostdlib --RTS=./boards/$(BOARD)
+# Add flags to force the compiler to conform to the standard, see
+# S.12.6 of the GNAT Reference Manual.
+CONFORMANCE	=	-gnato -gnatE -fstack-check
+
+FLAGS		=	-c -gnat2005 $(TARGETFLAGS) $(DEBUG) -gnatg \
+			$(CONFORMANCE) \
+			-gnatyy \
+			-ffunction-sections -fdata-sections \
+			-nostdinc -nostdlib --RTS=./boards/$(BOARD)
+
 #		-I./src/boards/$(BOARD)
 
-LIBNAME	=	libgnat.a
+LIBNAME		=	libgnat.a
 
-OBJS	=	obj/ada.o \
-		obj/a-unccon.o \
-		obj/a-uncdea.o \
-		obj/gnat.o \
-		obj/g-souinf.o \
-		obj/s-stoele.o \
-		obj/s-atacco.o \
-		obj/s-maccod.o \
-		obj/system.o \
-		obj/last_chance_handler.o
-		# obj/interfac.o \
+OBJS		=	obj/ada.o \
+			obj/a-unccon.o \
+			obj/a-uncdea.o \
+			obj/gnat.o \
+			obj/g-souinf.o \
+			obj/interfac.o \
+			obj/s-stoele.o \
+			obj/s-atacco.o \
+			obj/s-maccod.o \
+			obj/system.o \
+			obj/last_chance_handler.o
 		# obj/i-c.o
-ALIS	=	$(OBJS:.o=.ali)
+ALIS		=	$(OBJS:.o=.ali)
 
 all: $(LIBNAME)
 
@@ -60,8 +67,8 @@ obj/gnat.o obj/gnat.ali: src/common/gnat.ads
 obj/g-souinf.o obj/g-souinf.ali: src/common/g-souinf.ads
 	$(TARGET)gcc $(FLAGS) src/common/g-souinf.ads -o obj/g-souinf.o
 
-# obj/interfac.o obj/interfac.ali: src/common/interfac.ads
-# 	$(TARGET)gcc $(FLAGS) src/common/interfac.ads -o obj/interfac.o
+obj/interfac.o obj/interfac.ali: src/common/interfac.ads
+	$(TARGET)gcc $(FLAGS) src/common/interfac.ads -o obj/interfac.o
 
 # obj/i-c.o obj/i-c.ali: src/common/i-c.ads src/common/i-c.adb
 # 	$(TARGET)gcc $(FLAGS) src/common/i-c.adb -o obj/i-c.o
