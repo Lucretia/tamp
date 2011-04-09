@@ -151,6 +151,9 @@ a GPR file, this has to be done via make, it is no longer a blocker:
 
   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47717 - CLOSED
 
+Using Long_Long_Integer in a divide generates a call to __aeabi_ldivmod, which
+means we could really do with sorting out a proper target build for GNAT so
+we don't have to hack it together. This will then build GCC support libs.
 
 -------------------------------------------------------------------------------
 TODO
@@ -166,6 +169,8 @@ Find out how s-hibaen.ads is used, can we use it? In gcc/ada/system.ads there
 is a "High_Integrity_Mode" flag which is marked as obsolete. This flag doesn't
 exist in the target system specs.
 
+Use SPARK for development?
+
 -------------------------------------------------------------------------------
 REFERENCES
 -------------------------------------------------------------------------------
@@ -177,4 +182,10 @@ http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0337i/index.html
 
 ARMv7-M Architecture Reference Manual:
 http://infocenter.arm.com/help/topic/com.arm.doc.ddi0403c/index.html
+
+Procedure Call Standard for the ARM Architecture:
+http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042d/index.html
+
+Run-time ABI for the ARM architecture:
+http://infocenter.arm.com/help/topic/com.arm.doc.ihi0043c/index.html
 
