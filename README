@@ -142,6 +142,64 @@ The script will re-apply them for cross builds.
 * Building libs/apps requires the --RTS=$TAMP_SRC_DIR/rts/boards/<boardname> flag
 to be set and passed to gnatmake.
 
+
+-------------------------------------------------------------------------------
+Broken patch added
+-------------------------------------------------------------------------------
+I've added a 4.6.1 patch that attempts to enable GCC to build fully without
+horrible hacks, this does not work and ends up with the usual error:
+
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/make.adb
+make.adb:7388:07: "Create_Temp_Output_File" is undefined
+gnatmake: "/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/make.adb" compilation error
+make[2]: *** [gnatmake-re] Error 4
+make[2]: *** Waiting for unfinished jobs....
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/ali.adb
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/csets.adb
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/hostparm.ads
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/indepsw.adb
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/namet.adb
+gcc -c -I./ -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/../adainclude -I/usr/lib/gcc/x86_64-linux-gnu/4.4.4/adalib/ -I. -I/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada -g -O2 -W -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -gnatpg -gnata -I- /home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/opt.adb
+opt.ads:120:11: warning: unrecognized pragma "Ordered"
+opt.ads:1393:11: warning: unrecognized pragma "Ordered"
+gnatmake: "/home/laguest/src/mine/tamp/thirdparty/src/gcc-4.6.1/gcc/ada/opt.adb" compilation error
+make[2]: *** [gnatlink-re] Error 4
+make[2]: Leaving directory `/home/laguest/src/mine/tamp/thirdparty/build/arm/2-gcc-4.6.1/gcc/ada/tools'
+make[1]: *** [gnattools-cross] Error 2
+make[1]: Leaving directory `/home/laguest/src/mine/tamp/thirdparty/build/arm/2-gcc-4.6.1/gnattools'
+make: *** [all-gnattools] Error 2
+
+This is acheived with the following commands:
+
+../../../src/binutils-2.19/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --disable-nls --disable-shared --disable-threads --with-gcc --with-gnu-as --with-gnu-ld --without-ppl --without-cloog &> ../log.binutils.config.txt
+
+make -j4 &> ../log.binutils.make.txt
+make install &> ../log.binutils.make.install.txt
+
+export PATH=$HOME/opt/tamp/bin:$PATH
+
+../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --with-newlib --disable-nls --disable-shared --disable-threads --disable-lto --with-gnu-as --with-gnu-ld --enable-languages=c --disable-libssp --without-headers --without-ppl --without-cloog &> ../log.gcc1.config.txt
+
+make all-gcc &> ../log.gcc1.make.txt
+make install-gcc &> ../log.gcc1.make.install.txt
+
+../../../src/newlib-1.19.0/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --disable-nls --disable-shared --disable-threads  --with-gnu-as --with-gnu-ld --without-ppl --without-cloog &> ../log.newlib.config.txt
+
+make -j4 &> ../log.newlib.make.txt
+make install &> ../log.newlib.make.install.txt
+
+# GCC2
+
+../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --with-newlib --disable-nls --disable-shared --disable-threads --disable-lto --with-gnu-as --with-gnu-ld --enable-languages=c,ada --disable-libssp --without-ppl --without-cloog &> ../log.gcc2.config.txt
+
+make -j4 all-gcc &> ../log.gcc2.make.txt
+make -j4 all-gnattools &> ../log.gcc2.make.gnattools.txt
+make install-gcc &> ../log.gcc2.make.install.txt
+
+** NOTE **
+
+If anyone would like to try to get this to build, feel free.
+
 -------------------------------------------------------------------------------
 Bugs
 -------------------------------------------------------------------------------
