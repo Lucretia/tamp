@@ -220,8 +220,7 @@ TODO
 Add a check for each tool used, patch, svn, git, bison, flex and exit completely
 if they're not available.
 
-Add the options from:
-http://gcc.gnu.org/onlinedocs/gcc-4.6.0/gnat_rm/Strict-Conformance-to-the-Ada-Reference-Manual.html#Strict-Conformance-to-the-Ada-Reference-Manual
+Add the options from [6].
 
 Find out how s-hibaen.ads is used, can we use it? In gcc/ada/system.ads there
 is a "High_Integrity_Mode" flag which is marked as obsolete. This flag doesn't
@@ -285,3 +284,6 @@ http://infocenter.arm.com/help/topic/com.arm.doc.ihi0043c/index.html
 
 [5] LPCXpresso1769 schematics:
 http://www.embeddedartists.com/sites/default/files/docs/schematics/LPCXpressoLPC1769revB.pdf
+
+[6] Strict Conformance to the ARM:
+http://gcc.gnu.org/onlinedocs/gcc-4.6.0/gnat_rm/Strict-Conformance-to-the-Ada-Reference-Manual.html#Strict-Conformance-to-the-Ada-Reference-Manual
