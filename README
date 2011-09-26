@@ -264,6 +264,25 @@ This section will list various external JTAG debugger's and their pinouts and
 we will gradually provide schematics for connecting them to J4 on the
 LPCXpresso1769 board.
 
+Opendous-JTAG [7]
+
+Pin	Function  LPCXpresso
+0	TDI       10
+1	TMS        4
+2	TRST      ??
+3	SRST      ??
+4	TCK        6
+5	TDO        8
+
+USBprog [8]
+
+Would this be possible?
+
+FTDI V2DIP1-32 [9]
+
+Would this be possible? Cheap, OpenOCD already works with the FTDI chip. Just
+need to know which pins on this board would become with JTAG pins.
+
 -------------------------------------------------------------------------------
 REFERENCES
 -------------------------------------------------------------------------------
@@ -287,3 +306,12 @@ http://www.embeddedartists.com/sites/default/files/docs/schematics/LPCXpressoLPC
 
 [6] Strict Conformance to the ARM:
 http://gcc.gnu.org/onlinedocs/gcc-4.6.0/gnat_rm/Strict-Conformance-to-the-Ada-Reference-Manual.html#Strict-Conformance-to-the-Ada-Reference-Manual
+
+[7] Opendous-JTAG:
+http://code.google.com/p/opendous-jtag/
+
+[8] USBprog:
+http://www2.embedded-projects.net/index.php?page_id=165
+
+[9] FTDI V2DIP1-32:
+http://uk.farnell.com/ftdi/v2dip1-32/module-dev-32-pin-1x-usb-vnc2/dp/1825829
