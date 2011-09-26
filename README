@@ -230,6 +230,35 @@ exist in the target system specs.
 Use SPARK for development?
 
 -------------------------------------------------------------------------------
+LPCXpresso1769 JTAG
+-------------------------------------------------------------------------------
+
+We need to remove the LPC-Link board from the LPXpresso1769 board. This then
+leaves us open for an external JTAG debugger. The following are my notes and
+given I know next to nothing about electronics, some help here would be
+appreciated.
+
+These are from the following file:
+  http://www.embeddedartists.com/sites/default/files/docs/schematics/LPCXpressoLPC1769revB.pdf
+
+      J4 Xpresso1769 side (page 4: SWD/JTAG Interface)
+Pins  Name
+ 2    VIO_3V3X
+ 4    JTAG_TMS_SWDIOX
+ 6    JTAG_TCLK_SWCLKC
+ 8    JTAG_TDO_SWOX
+10    JTAG_TDIX
+12    JTAG_RESETX
+14    EXT_POWX
+16    GNDX
+
+Pin  2 = TRST_N (From page 5: LPC176X Side)
+Pin 12 = SRST??
+
+I came to the conclusion that Pin 12 would be the soft reset if pin 2 is
+the test reset. Or are these the other way around?
+
+-------------------------------------------------------------------------------
 REFERENCES
 -------------------------------------------------------------------------------
 
