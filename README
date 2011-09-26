@@ -264,7 +264,7 @@ This section will list various external JTAG debugger's and their pinouts and
 we will gradually provide schematics for connecting them to J4 on the
 LPCXpresso1769 board.
 
-Opendous-JTAG [7]
+Opendous-JTAG [7], [10]
 
 Pin	Function  LPCXpresso
 0	TDI       10
@@ -315,3 +315,6 @@ http://www2.embedded-projects.net/index.php?page_id=165
 
 [9] FTDI V2DIP1-32:
 http://uk.farnell.com/ftdi/v2dip1-32/module-dev-32-pin-1x-usb-vnc2/dp/1825829
+
+[10] eStick:
+http://embsys.technikum-wien.at/staff/horauer/estick/estick.php
