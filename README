@@ -238,8 +238,7 @@ leaves us open for an external JTAG debugger. The following are my notes and
 given I know next to nothing about electronics, some help here would be
 appreciated.
 
-These are from the following file:
-  http://www.embeddedartists.com/sites/default/files/docs/schematics/LPCXpressoLPC1769revB.pdf
+These are from [5]:
 
       J4 Xpresso1769 side (page 4: SWD/JTAG Interface)
 Pins  Name
@@ -259,20 +258,30 @@ I came to the conclusion that Pin 12 would be the soft reset if pin 2 is
 the test reset. Or are these the other way around?
 
 -------------------------------------------------------------------------------
+External JTAG interfaces
+-------------------------------------------------------------------------------
+
+This section will list various external JTAG debugger's and their pinouts and
+we will gradually provide schematics for connecting them to J4 on the
+LPCXpresso1769 board.
+
+-------------------------------------------------------------------------------
 REFERENCES
 -------------------------------------------------------------------------------
 
 Cortex-M3:
 
-Cortex™-M3 Technical Reference Manual:
+[1] Cortex™-M3 Technical Reference Manual:
 http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0337i/index.html
 
-ARMv7-M Architecture Reference Manual:
+[2] ARMv7-M Architecture Reference Manual:
 http://infocenter.arm.com/help/topic/com.arm.doc.ddi0403c/index.html
 
-Procedure Call Standard for the ARM Architecture:
+[3] Procedure Call Standard for the ARM Architecture:
 http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042d/index.html
 
-Run-time ABI for the ARM architecture:
+[4] Run-time ABI for the ARM architecture:
 http://infocenter.arm.com/help/topic/com.arm.doc.ihi0043c/index.html
 
+[5] LPCXpresso1769 schematics:
+http://www.embeddedartists.com/sites/default/files/docs/schematics/LPCXpressoLPC1769revB.pdf
