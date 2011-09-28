@@ -147,7 +147,8 @@ to be set and passed to gnatmake.
 The new patch seems to work!
 -------------------------------------------------------------------------------
 I've added a 4.6.1 patch that attempts to enable GCC to build fully without
-horrible hacks, I have managed to get this to build with no errors:
+horrible hacks, I have managed to get this to build with no errors. The patch 
+is based on the info from [13].
 
 I tested this with the following packages:
 
@@ -366,3 +367,6 @@ http://www.adacore.com/wp-content/files/auto_update/gnat-cross-docs/html/gnat_ug
 
 [12] GNAT Pro User's Guide Supplement for High-Integrity Edition Platforms:
 http://www.adacore.com/wp-content/files/auto_update/gnat-hie-docs/html/gnathie_ug.html
+
+[13] Ada’05 compiler for ARM based systems:
+http://www.zsk.p.lodz.pl/~morawski/Dyplomy/Praca%20dyplomowa%20p.%20Horna.pdf
