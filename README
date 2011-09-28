@@ -160,6 +160,9 @@ Before you try this, make sure there are no arm-none-eabi-* tools in your $PATH
 
 Obviously, you will require the gcc-4.6.1.diff patch applied to GCC.
 
+Even though I mention above in the "common problems" I totally forgot about that
+and yes, you do have to build the native GCC first.
+
 Native
 ------
 
