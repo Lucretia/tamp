@@ -1,4 +1,4 @@
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/adaint.c gcc-4.6.1/gcc/ada/adaint.c
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/adaint.c gcc-4.6.1/gcc/ada/adaint.c
 --- gcc-4.6.1.orig/gcc/ada/adaint.c	2010-10-25 16:26:02.000000000 +0100
 +++ gcc-4.6.1/gcc/ada/adaint.c	2011-09-20 17:06:16.000000000 +0100
 @@ -478,7 +478,8 @@
@@ -121,7 +121,7 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/adaint.c gcc-4.6.1/gcc/ada/adaint.c
    return -1;
  
  #elif defined (_WIN32) && !defined (RTX)
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/adaint.h gcc-4.6.1/gcc/ada/adaint.h
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/adaint.h gcc-4.6.1/gcc/ada/adaint.h
 --- gcc-4.6.1.orig/gcc/ada/adaint.h	2010-10-11 09:48:19.000000000 +0100
 +++ gcc-4.6.1/gcc/ada/adaint.h	2011-09-20 17:05:49.000000000 +0100
 @@ -36,7 +36,10 @@
@@ -152,10 +152,10 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/adaint.h gcc-4.6.1/gcc/ada/adaint.h
  extern int    __gnat_readdir_is_thread_safe        (void);
  
  extern OS_Time __gnat_file_time_name                (char *);
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/gcc-interface/Makefile.in gcc-4.6.1/gcc/ada/gcc-interface/Makefile.in
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/gcc-interface/Makefile.in gcc-4.6.1/gcc/ada/gcc-interface/Makefile.in
 --- gcc-4.6.1.orig/gcc/ada/gcc-interface/Makefile.in	2011-02-08 22:55:57.000000000 +0000
-+++ gcc-4.6.1/gcc/ada/gcc-interface/Makefile.in	2011-09-25 19:30:24.000000000 +0100
-@@ -1876,6 +1876,21 @@
++++ gcc-4.6.1/gcc/ada/gcc-interface/Makefile.in	2011-09-29 14:28:16.000000000 +0100
+@@ -1876,6 +1876,24 @@
    LIBRARY_VERSION := $(LIB_VERSION)
  endif
  
@@ -172,12 +172,15 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/gcc-interface/Makefile.in gcc-4.6.1/gcc
 +    LIBGNAT_TARGET_PAIRS += \
 +    system.ads<system-bare-armel.ads
 +  endif
++
++  # See gnattools/configure for setting the TOOLS_TARGET_PAIRS variable, it
++  # no longer set in this file, so I don't know why it's even mentioned in here.
 +endif
 +
  ifeq ($(strip $(filter-out sparc% linux%,$(arch) $(osys))),)
    LIBGNAT_TARGET_PAIRS_COMMON = \
    a-intnam.ads<a-intnam-linux.ads \
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/gsocket.h gcc-4.6.1/gcc/ada/gsocket.h
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/gsocket.h gcc-4.6.1/gcc/ada/gsocket.h
 --- gcc-4.6.1.orig/gcc/ada/gsocket.h	2010-06-14 13:39:55.000000000 +0100
 +++ gcc-4.6.1/gcc/ada/gsocket.h	2011-09-20 16:21:13.000000000 +0100
 @@ -29,7 +29,7 @@
@@ -189,7 +192,58 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/gsocket.h gcc-4.6.1/gcc/ada/gsocket.h
  
  #warning Sockets not supported on these platforms
  #undef HAVE_SOCKETS
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/s-oscons-tmplt.c gcc-4.6.1/gcc/ada/s-oscons-tmplt.c
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/mlib-tgt-specific-bare.adb gcc-4.6.1/gcc/ada/mlib-tgt-specific-bare.adb
+--- gcc-4.6.1.orig/gcc/ada/mlib-tgt-specific-bare.adb	1970-01-01 01:00:00.000000000 +0100
++++ gcc-4.6.1/gcc/ada/mlib-tgt-specific-bare.adb	2011-09-29 13:41:04.000000000 +0100
+@@ -0,0 +1,47 @@
++------------------------------------------------------------------------------
++--                                                                          --
++--                         GNAT COMPILER COMPONENTS                         --
++--                                                                          --
++--                    M L I B . T G T . S P E C I F I C                     --
++--                          (Bare machine version)                          --
++--                                                                          --
++--                                 B o d y                                  --
++--                                                                          --
++--                     Copyright (C) 2007, AdaCore                          --
++--                                                                          --
++-- GNAT is free software;  you can  redistribute it  and/or modify it under --
++-- terms of the  GNU General Public License as published  by the Free Soft- --
++-- ware  Foundation;  either version 3,  or (at your option) any later ver- --
++-- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
++-- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
++-- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
++-- for  more details.  You should have  received  a copy of the GNU General --
++-- Public License  distributed with GNAT; see file COPYING3.  If not, go to --
++-- http://www.gnu.org/licenses for a complete copy of the license.          --
++--                                                                          --
++-- GNAT was originally developed  by the GNAT team at  New York University. --
++-- Extensive contributions were provided by Ada Core Technologies Inc.      --
++--                                                                          --
++------------------------------------------------------------------------------
++
++--  Default version
++
++package body MLib.Tgt.Specific is
++
++   --  By default, libraries are not supported at all
++
++   function Support_For_Libraries return Library_Support;
++   --  Function indicating if libraries are supported
++
++   ---------------------------
++   -- Support_For_Libraries --
++   ---------------------------
++
++   function Support_For_Libraries return Library_Support is
++   begin
++      return Static_Only;
++   end Support_For_Libraries;
++
++begin
++   Support_For_Libraries_Ptr := Support_For_Libraries'Access;
++end MLib.Tgt.Specific;
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/s-oscons-tmplt.c gcc-4.6.1/gcc/ada/s-oscons-tmplt.c
 --- gcc-4.6.1.orig/gcc/ada/s-oscons-tmplt.c	2010-12-20 07:26:57.000000000 +0000
 +++ gcc-4.6.1/gcc/ada/s-oscons-tmplt.c	2011-09-25 14:54:19.000000000 +0100
 @@ -115,7 +115,7 @@
@@ -201,7 +255,7 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/s-oscons-tmplt.c gcc-4.6.1/gcc/ada/s-os
  # define HAVE_TERMIOS
  #endif
  
-diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/system-bare-armel.ads gcc-4.6.1/gcc/ada/system-bare-armel.ads
+diff -x '*~' -uNdr gcc-4.6.1.orig/gcc/ada/system-bare-armel.ads gcc-4.6.1/gcc/ada/system-bare-armel.ads
 --- gcc-4.6.1.orig/gcc/ada/system-bare-armel.ads	1970-01-01 01:00:00.000000000 +0100
 +++ gcc-4.6.1/gcc/ada/system-bare-armel.ads	2011-09-20 16:51:14.000000000 +0100
 @@ -0,0 +1,153 @@
@@ -358,3 +412,41 @@ diff -x '*~' -uNr gcc-4.6.1.orig/gcc/ada/system-bare-armel.ads gcc-4.6.1/gcc/ada
 +   GCC_ZCX_Support           : constant Boolean := False;
 +
 +end System;
+diff -x '*~' -uNdr gcc-4.6.1.orig/gnattools/configure gcc-4.6.1/gnattools/configure
+--- gcc-4.6.1.orig/gnattools/configure	2010-01-09 18:21:52.000000000 +0000
++++ gcc-4.6.1/gnattools/configure	2011-09-29 14:38:20.000000000 +0100
+@@ -2111,6 +2111,15 @@
+     mlib-tgt-specific.adb<mlib-tgt-specific-lynxos.adb \
+     indepsw.adb<indepsw-gnu.adb"
+     ;;
++  # Any bare machine stuff can go here, i.e. mips-elf, arm-elf,
++  # arm-none-eabi-elf, etc.
++  #
++  # This file just enables the ability to build static libs with gnatmake and
++  # project files.
++  arm-*-elf* | arm*-*-eabi*)
++    TOOLS_TARGET_PAIRS="\
++    mlib-tgt-specific.adb<mlib-tgt-specific-bare.adb"
++    ;;
+ esac
+ 
+ # From user or toplevel makefile.
+diff -x '*~' -uNdr gcc-4.6.1.orig/gnattools/configure.ac gcc-4.6.1/gnattools/configure.ac
+--- gcc-4.6.1.orig/gnattools/configure.ac	2010-01-09 18:21:52.000000000 +0000
++++ gcc-4.6.1/gnattools/configure.ac	2011-09-29 14:38:32.000000000 +0100
+@@ -151,6 +151,15 @@
+     mlib-tgt-specific.adb<mlib-tgt-specific-lynxos.adb \
+     indepsw.adb<indepsw-gnu.adb"
+     ;;
++  # Any bare machine stuff can go here, i.e. mips-elf, arm-elf,
++  # arm-none-eabi-elf, etc.
++  #
++  # This file just enables the ability to build static libs with gnatmake and
++  # project files.
++  arm-*-elf* | arm*-*-eabi*)
++    TOOLS_TARGET_PAIRS="\
++    mlib-tgt-specific.adb<mlib-tgt-specific-bare.adb"
++    ;;
+ esac
+ 
+ # From user or toplevel makefile.
