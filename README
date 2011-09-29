@@ -329,6 +329,46 @@ FTDI V2DIP1-32 [9]
 Would this be possible? Cheap, OpenOCD already works with the FTDI chip. Just
 need to know which pins on this board would become with JTAG pins.
 
+From oliver117 (on #Ada - Oliver Kleinke):
+
+J4 pin connections
+------------------
+
+ 2    VIO_3V3X               Vcc
+ 4    JTAG_TMS_SWDIOX        TMS
+ 6    JTAG_TCLK_SWCLKC       TCLK/TCK
+ 8    JTAG_TDO_SWOX          TDO
+10    JTAG_TDIX              TDI
+12    JTAG_RESETX            RESET/SRST
+14    EXT_POWX               connected to USB power (5V)
+16    GNDX                   GND
+
+ARM 10p JTAG
+------------
+
+1 Vcc  |  2 TMS
+3 GND  |  4 TCK
+5 GND  |  6 TDO
+7 RTCK |  8 TDI
+9 GND  | 10 nRESET/nSRST
+
+=>
+ARM JTAG Header -> Board
+1 -> 2
+2 -> 4
+3, 5, 9-> 16
+4 -> 6
+6 -> 8
+7 -> (no RTCK on board, connect to GND)
+8 -> 10
+10 -> 12
+(optional 5v) -> 14
+
+References
+----------
+
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0184b/I1037757.html
+
 -------------------------------------------------------------------------------
 REFERENCES
 -------------------------------------------------------------------------------
