@@ -271,6 +271,8 @@ we don't have to hack it together. This will then build GCC support libs.
 TODO
 -------------------------------------------------------------------------------
 
+Remove the build-rts.sh and the old patches in thirdparty/patches/gcc-4.6.
+
 Add a check for each tool used, patch, svn, git, bison, flex and exit completely
 if they're not available.
 
