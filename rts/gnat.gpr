@@ -1,5 +1,5 @@
 library project gnat is
-   type Board_Name is ("pc", "beagle");
+   type Board_Name is ("pc", "beagle", "xpresso1769");
 
    Board : Board_Name := external ("Board");
 
