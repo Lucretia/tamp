@@ -41,6 +41,14 @@ board you intend to build TAMP for:
 
   ./build-rts.sh <boardname>
 
+or
+
+  cd <tamp>/rts
+  arm-none-eabi-gnatmake -P gnat.gpr -XBoard=xpresso1769 -v
+
+The current builds of the toolchain can now build the RTS from the GPR file.
+
+
 -------------------------------------------------------------------------------
 Getting started
 -------------------------------------------------------------------------------
