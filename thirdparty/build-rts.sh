@@ -54,8 +54,8 @@ fi
 
 echo "  Creating RTS with GCC-$GCC_VERSION for '$1' board"
 
-export PATH=$TAMP/bin:$PATH
-export LD_LIBRARY_PATH=$TAMP/lib$BITS:$LD_LIBRARY_PATH
+export PATH=$INSTALL_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
 RTS=$TOP/../rts
 
@@ -152,8 +152,8 @@ function create_symlinks()
 # $1 = board name
 function build_rts()
 {
-    export PATH=$TAMP/bin:$PATH
-    export LD_LIBRARY_PATH=$TAMP/lib$BITS:$LD_LIBRARY_PATH
+    export PATH=$INSTALL_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
     cd $RTS
 

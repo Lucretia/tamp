@@ -32,7 +32,7 @@ cat << 'NOCONFIG_ERR'
   ERROR: No config.inc found.
 
   1) cp config-master.inc config.inc
-  2) Edit config.inc for your system
+  2) Peronalise config.inc for your system
   3) Run this script again
 
 NOCONFIG_ERR
