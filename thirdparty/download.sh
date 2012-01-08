@@ -55,6 +55,17 @@ echo "  >> Downloading source packages, this may take quite a while..."
 		echo "  (x) Already have binutils-$BINUTILS_VERSION"
 	fi
 
+# GDB Tarballs #####################################################################
+
+	if [ ! -f gdb-$GDB_VERSION.tar.bz2 ]; then
+		echo "  >> Downloading gdb-$GDB_VERSION..."
+		wget -c $GDB_TARBALL
+
+		check_error_exit
+	else
+		echo "  (x) Already have gdb-$GDB_VERSION"
+	fi
+
 # GCC Tarballs #################################################################
 
 if [ $GCC_FROM_REPO == "n" ]; then
@@ -167,21 +178,21 @@ fi # End $GCC_FROM_REPO == "n"
 	#     echo "  (x) Already have u-boot-$U_BOOT_VERSION.tar.bz2"
 	# fi
 
-	if [ ! -f x-load_revc_v3.bin.ift ]
-	then
-		wget http://beagleboard.googlecode.com/files/x-load_revc_v3.bin.ift
-		check_error_exit
-	else
-		echo "  (x) Already have x-load_revc_v3.bin.ift"
-	fi
+	# if [ ! -f x-load_revc_v3.bin.ift ]
+	# then
+	# 	wget http://beagleboard.googlecode.com/files/x-load_revc_v3.bin.ift
+	# 	check_error_exit
+	# else
+	# 	echo "  (x) Already have x-load_revc_v3.bin.ift"
+	# fi
 
-	if [ ! -f u-boot-f_revc_v3.bin ]
-	then
-		wget http://beagleboard.googlecode.com/files/u-boot-f_revc_v3.bin
-		check_error_exit
-	else
-		echo "  (x) Already have u-boot-f_revc_v3.bin"
-	fi
+	# if [ ! -f u-boot-f_revc_v3.bin ]
+	# then
+	# 	wget http://beagleboard.googlecode.com/files/u-boot-f_revc_v3.bin
+	# 	check_error_exit
+	# else
+	# 	echo "  (x) Already have u-boot-f_revc_v3.bin"
+	# fi
 
 #################################################################################
 # Unpack the downloaded archives.
@@ -192,6 +203,13 @@ fi # End $GCC_FROM_REPO == "n"
 	if [ ! -d binutils-$BINUTILS_SRC_VERSION ]; then
 		echo "  >> Unpacking binutils-$BINUTILS_VERSION.tar.bz2..."
 		tar -xjpf $TOP/downloads/binutils-$BINUTILS_VERSION.tar.bz2
+		check_error_exit
+	fi
+
+	if [ ! -d gdb-$GDB_SRC_VERSION ]; then
+		echo "  >> Unpacking gdb-$GDB_VERSION.tar.bz2..."
+		tar -xjpf $TOP/downloads/gdb-$GDB_VERSION.tar.bz2
+
 		check_error_exit
 	fi
 
@@ -344,6 +362,19 @@ fi
 # fi
 
 #################################################################################
+# Download stlink from GitHub.
+#################################################################################
+if [ ! -d stlink ]
+then
+    echo "  >> Downloading stlink from GitHub..."
+    git clone $STLINK_MIRROR stlink
+
+    check_error_exit
+else
+    echo "  >> Already have stlink from GitHub"
+fi
+
+#################################################################################
 # Download GRUB from CVS.
 #################################################################################
 # if [ ! -d grub2 ]
@@ -359,23 +390,23 @@ fi
 #################################################################################
 # Download Qemu from Gitorius.
 #################################################################################
-if [ ! -d qemu ]
-then
-    echo "  >> Downloading qemu from Gitorius..."
-    git clone git://gitorious.org/qemu-maemo/qemu.git
-    check_error_exit
-else
-    echo "  >> Already have qemu from Gitorius"
-fi
+# if [ ! -d qemu ]
+# then
+#     echo "  >> Downloading qemu from Gitorius..."
+#     git clone git://gitorious.org/qemu-maemo/qemu.git
+#     check_error_exit
+# else
+#     echo "  >> Already have qemu from Gitorius"
+# fi
 
-cd qemu
+# cd qemu
 
-if [ ! -f .patched ]
-then
-    echo "  >> Applying Qemu patches..."
-    patch -p1 < $TOP/patches/qemu-nandflash.patch
-    check_error .patched
-fi
+# if [ ! -f .patched ]
+# then
+#     echo "  >> Applying Qemu patches..."
+#     patch -p1 < $TOP/patches/qemu-nandflash.patch
+#     check_error .patched
+# fi
 
 # cd $SRC
 

@@ -21,11 +21,11 @@ Options:
 
      --help         Display this help and exit
      --version      Display version info and exit
-     --t TARGET     Build for specified TARGET
+     -t TARGET      Build for specified TARGET
 
                     Valid values for TARGET
                     -----------------------
-                    native (default without --t)
+                    native (default without -t)
                     arm-none-eabi
                     i386-elf
                     mips-elf
@@ -210,6 +210,7 @@ echo "  MPC           : " $MPC_VERSION
 echo "  NewLib        : " $NEWLIB_VERSION
 echo "  Binutils      : " $BINUTILS_VERSION
 echo "  GCC           : " $GCC_VERSION
+echo "  ST-Link       : GitHub"
 
 echo "  Other"
 echo "  -----"
@@ -311,6 +312,11 @@ function create_gcc_symlinks()
 	if [ ! -h mpc ]; then
 		echo "  >> Creating symbolic link to MPC source..."
 		ln -s $SRC/mpc-$MPC_VERSION mpc
+	fi
+
+	if [ ! -h gdb ]; then
+		echo "  >> Creating symbolic link to GDB source..."
+		ln -s $SRC/gdb-$GDB_SRC_VERSION gdb
 	fi
 }
 
@@ -776,6 +782,45 @@ function build_cross_toolchain()
 
 	# Get back to the build directory.
 	cd $BLD
+}
+
+function build_stlink()
+{
+    echo "  ( ) Start Processing stlink for $1"
+
+    cd $BLD
+
+    VER=$1
+    STAGE="$VER"
+    DIRS="stlink"
+    
+    echo "  >> Creating Directories (if needed)..."
+
+    for d in $DIRS; do
+	if [ ! -d $STAGE/$d ]; 	then
+	    mkdir -p $STAGE/$d
+	fi
+    done
+
+    LOGPRE=$LOG/$1
+    CBD=$BLD/$STAGE
+
+    cd $CBD/stlink
+
+    make
+
+    if [ ! -f .make ]; then
+	echo "  >> [1] Building stlink for $1..."
+	make &> $LOGPRE-stlink-make.txt
+	check_error .make
+    fi
+
+    if [ ! -f .make-install ]; then
+	echo "  >> [2] Installing stlink..."
+	cp gdbserver/st-util $INSTALL_DIR/bin &> $LOGPRE-stlink-install.txt
+
+	check_error .make-install
+    fi
 }
 
 function build_qemu()

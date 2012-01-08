@@ -79,6 +79,14 @@ export BINUTILS_TARBALL
 export BINUTILS_SRC_VERSION
 
 ################################################################################
+# GDB ##########################################################################
+################################################################################
+export GDB_VERSION=7.3a # filename version
+export GDB_SRC_VERSION=7.3 # extracted version
+export GDB_MIRROR=http://ftp.gnu.org/gnu/gdb
+export GDB_TARBALL=$GDB_MIRROR/gdb-$GDB_VERSION.tar.bz2
+
+################################################################################
 # GCC ##########################################################################
 ################################################################################
 
@@ -156,6 +164,8 @@ export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
 export PPL_MIRROR=ftp://ftp.cs.unipr.it/pub/ppl/releases/$PPL_VERSION
 export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 # export SPARK_FILE=spark-gpl-2011-x86_64-pc-linux-gnu.tar.gz
+
+export STLINK_MIRROR=git://github.com/texane/stlink.git
 
 ################################################################################
 # Implementation specific tuning
