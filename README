@@ -51,21 +51,32 @@ board you intend to build TAMP for:
 or
 
   cd <tamp>/rts
-  arm-none-eabi-gnatmake -P gnat.gpr -XBoard=xpresso1769 -v
+  arm-none-eabi-gnatmake -P gnat.gpr -XBoard=stm32f4 -v
 
 The current builds of the toolchain can now build the RTS from the GPR file.
 
+-------------------------------------------------------------------------------
+Targets
+-------------------------------------------------------------------------------
+
+We intend to target the following architectures initially:
+
+* ARM, using the STM32F4DISCOVERY board.
+* PIC32, using the ChipKIT UNO32 board.
 
 -------------------------------------------------------------------------------
 Getting started
 -------------------------------------------------------------------------------
 
-TAMP uses GCC-4.6 due to the total inability of previous versions to build an
-Ada cross compiler, we've still had to hack the main makefile and configure
-script to enable this even though AdaCore have apparently fixed this which they
-haven't, but it works. So the first thing you will need is a toolchain:
+TAMP uses GCC-4.6.1 due to the total inability of previous versions to build an
+Ada cross compiler. We've managed to use the information from [12] & [13] to
+create an Ada compiler targetted to a Zero Footprint Runtime so we can start
+to build an application for bare hardware and still have some support from the
+language, like exceptions.
 
-1) Native Toolchain for your host OS
+So the first thing you will need is a toolchain:
+
+1) Native Toolchain for your host OS, you need the same version of GNAT to build GNAT.
 2) Cross Toolchain for the target you want to build TAMP for (i.e. ARM)
 
 cd thirdparty
@@ -101,6 +112,8 @@ Building the native compiler will also run the testsuite on GNAT, there is no
 flag to turn this on/off yet so you will require the following packages:
 
   dejagnu, expect, tcl, bison, flex, patch.
+
+  libusb for stlink, see https://github.com/texane/stlink.
 
 -------------------------------------------------------------------------------
 Common problems
