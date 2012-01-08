@@ -1,5 +1,12 @@
                     The Ada Microkernel Project (TAMP)
 
+  *********************************************************************
+  ** THE BUILD SCRIPT FAILS AT THIS TIME - WE ARE LOOKING INTO IT!!! **
+  **                                                                 **
+  ** See the section titled "The new patch seems to work!" for       **
+  ** instructions on how to build the toolchain.                     **
+  *********************************************************************
+
 -------------------------------------------------------------------------------
 Legal
 -------------------------------------------------------------------------------
@@ -109,60 +116,21 @@ otherwise the gnatmake found will be the system one and s-os_lib may not
 have Create_Temp_Output_File subprogram defined.
 
 -------------------------------------------------------------------------------
-Caveats
--------------------------------------------------------------------------------
-
-If you have to build the native compiler again after having built the cross
-compilers, you will have to reverse the patches applied as they're incompatible
-with native builds:
-
-cd thirdparty/src/gcc (or whichever version of GCC the script is using)
-cat ../../patches/gcc-4.6/* |patch -p1 -i -
-
-The script will re-apply them for cross builds.
-
-* gnatlib.patch
-
-  Disables the check for the --disable-libada flag such that the gnattools
-  target still provided after configure has run.
-
-* gnatlib2.patch
-
-  Removes the dependency of maybe-all-target-libada from all-gnattools thus
-  allowing us to build the gnattools.
-
-* gnatlib3.patch
-
-  Removes the last lines in the ada.install-common target which calls
-  install-gnatlib as this isn't required, if this is left in the install fails
-  with the following message:
-
-    You must first build the GNAT library: make gnatlib
-
-  which is found in the rule ../stamp-gnatlib-$(RTSDIR) within the
-  gcc/ada/gcc-interface/Makefile.
-
-* gnattools.patch & gnattools2.patch
-
-  Adds support for ARM in the gnattools. This would need to be modified for
-  other bareboard targets where <target>-<toolname> applies.
-
-* Building libs/apps requires the --RTS=$TAMP_SRC_DIR/rts/boards/<boardname> flag
-to be set and passed to gnatmake.
-
-
--------------------------------------------------------------------------------
 The new patch seems to work!
 -------------------------------------------------------------------------------
+
+Here are the instructions on building the toolchain for native and arm-none-eabi.
+
 I've added a 4.6.1 patch that attempts to enable GCC to build fully without
 horrible hacks, I have managed to get this to build with no errors. The patch 
 is based on the info from [13].
 
 I tested this with the following packages:
 
-gcc-4.6.1 (C, Ada)
-binutils-2.21.1a
+gcc-4.6.1 (C, C++, Ada)
+binutils-2.22
 newlib-1.19.0
+gdb-7.3a
 
 Before you try this, make sure there are no arm-none-eabi-* tools in your $PATH
 
@@ -171,20 +139,28 @@ Obviously, you will require the gcc-4.6.1.diff patch applied to GCC.
 Even though I mention above in the "common problems" I totally forgot about that
 and yes, you do have to build the native GCC first.
 
-Native
-------
+1) Extract all source archives.
+2) Make symbolic links from gcc to mpc, mpfr, gdb, gmp:
+   cd gcc-4.6.1
+   ln -s ../mpfr-3.0.1 mpfr
+   ln -s ../gmp-5.0.2 gmp
+   ln -s ../mpc-0.9 mpc
+   ln -s ../gdb-7.3 gdb
 
-../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --enable-multilib --enable-shared --with-gnu-as --with-gnu-ld --enable-languages=c,ada --without-ppl --without-cloog --with-system-zlib --disable-libgomp --without-libffi  --without-libiconv-prefix --disable-libmudflap --disable-nls --disable-libstdcxx-pch  &> ../log.native.gcc.config.txt
+3) Native
+---------
+
+../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --enable-multilib --enable-shared --with-gnu-as --with-gnu-ld --enable-languages=c,c++,ada --without-ppl --without-cloog --with-system-zlib --disable-libgomp --without-libffi  --without-libiconv-prefix --disable-libmudflap --disable-nls --disable-libstdcxx-pch  &> ../log.native.gcc.config.txt
 
 make -j4 bootstrap &> ../log.gcc.make.txt
 make install &> ../log.gcc.make.install.txt
 
 export PATH=$HOME/opt/tamp/bin:$PATH
 
-Cross
------
+4) Cross
+--------
 
-../../../src/binutils-2.21.1/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --disable-nls --disable-shared --disable-threads --with-gcc --with-gnu-as --with-gnu-ld --without-ppl --without-cloog &> ../log.binutils.config.txt
+../../../src/binutils-2.22/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --disable-nls --disable-shared --disable-threads --with-gcc --with-gnu-as --with-gnu-ld --without-ppl --without-cloog &> ../log.binutils.config.txt
 
 make -j4 &> ../log.binutils.make.txt
 make install &> ../log.binutils.make.install.txt
@@ -201,7 +177,7 @@ make install &> ../log.newlib.make.install.txt
 
 # GCC2
 
-../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --with-newlib --disable-nls --disable-shared --disable-threads --disable-lto --with-gnu-as --with-gnu-ld --enable-languages=c,ada --disable-libssp --without-ppl --without-cloog &> ../log.gcc2.config.txt
+../../../src/gcc-4.6.1/configure --prefix=$HOME/opt/tamp --target=arm-none-eabi --enable-interwork --enable-multilib --with-newlib --disable-nls --disable-shared --disable-threads --disable-lto --with-gnu-as --with-gnu-ld --enable-languages=c,c++,ada --disable-libssp --without-ppl --without-cloog &> ../log.gcc2.config.txt
 
 make -j4 &> ../log.gcc2.make.txt
 make install &> ../log.gcc2.make.install.txt
@@ -209,12 +185,12 @@ make install &> ../log.gcc2.make.install.txt
 Caveats
 -------
 
-The above will build with binutils-2.22, newlib-1.19.0 and gcc-4.6.2, but when
-configuring newlib, the following needs to be added to the configure line:
+When building with gcc-4.6.2, there is a failure in newlib, apparently the fix is to add this
 
   --disable-newlib-supplied-syscalls
 
-N.B: This is supposed to fix the issue - IT DOES NOT. GCC-4.6.2 will not build newlib, I know this is to do with ARMv6-m multilib and the ASM not being correct. I'm not looking into this at this time. 4.6.1 is fine ATM.
+to the configure command, but this also fails later down the line in GCC itself. So, I will not be using 4.6.2
+until we can get a patch.
 
 Sample outputs
 --------------
