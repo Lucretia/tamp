@@ -4,7 +4,7 @@
 Legal
 -------------------------------------------------------------------------------
 
-Copright © 2011, Luke A. Guest & Dave Rees, all rights reserved.
+Copyright © 2011, Luke A. Guest & David Rees, All Rights Reserved.
 
 License is GPL v2 until further notice and is subject to change during
 development.
@@ -277,23 +277,6 @@ a GPR file, this has to be done via make, it is no longer a blocker:
 Using Long_Long_Integer in a divide generates a call to __aeabi_ldivmod, which
 means we could really do with sorting out a proper target build for GNAT so
 we don't have to hack it together. This will then build GCC support libs.
-
--------------------------------------------------------------------------------
-TODO
--------------------------------------------------------------------------------
-
-Remove the build-rts.sh and the old patches in thirdparty/patches/gcc-4.6.
-
-Add a check for each tool used, patch, svn, git, bison, flex and exit completely
-if they're not available.
-
-Add the options from [6].
-
-Find out how s-hibaen.ads is used, can we use it? In gcc/ada/system.ads there
-is a "High_Integrity_Mode" flag which is marked as obsolete. This flag doesn't
-exist in the target system specs.
-
-Use SPARK for development?
 
 -------------------------------------------------------------------------------
 LPCXpresso1769 JTAG

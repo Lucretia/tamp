@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+TODO
+-------------------------------------------------------------------------------
+
+Remove the build-rts.sh
+
+Add a check for each tool used, patch, svn, git, bison, flex and exit completely
+if they're not available.
+
+Add the options from [6].
+
+Find out how s-hibaen.ads is used, can we use it? In gcc/ada/system.ads there
+is a "High_Integrity_Mode" flag which is marked as obsolete. This flag doesn't
+exist in the target system specs.
+
+Use SPARK for development?

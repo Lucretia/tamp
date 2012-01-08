@@ -1,11 +1,11 @@
 ################################################################################
 # Filename          # config-master.inc
-# Purpose           # Defines the TAMP Toolchain source versions/mirrors
-# Copyright         # Luke A. Guest, David Rees Copyright (C) 2011
-#                   #
+# Purpose           # Defines the Toolchain source versions/mirrors
+# Copyright         # Copyright (C) 2011 Luke A. Guest, David Rees,
+# Depends           # http://gcc.gnu.org/install/prerequisites.html
 # Description       # 1) cp config-master.inc config.inc
 #                   # 2) edit config.inc as required for your machine.
-#                   # 3) ./build-tools.sh
+#                   # 3) ./build-tools.sh --help
 ################################################################################
 
 export TOP=`pwd`
@@ -19,8 +19,13 @@ export BLD=$TOP/build
 export BITS=64
 
 ################################################################################
+# Installation directory
+################################################################################
+export INSTALL_DIR=$HOME/opt/gnat
+
+################################################################################
 # Parallel Make Threads/Jobs
-#
+################################################################################
 # How many 'make' threads do you want to have going during the build?
 # In most cases using a value greater than the number of processors
 # in your machine will result in fewer and shorter I/O latency hits,
@@ -48,51 +53,97 @@ export JOBS="-j $(($CORES*2))"
 # Static Load-average Threshold
 #export JOBS=--load-average=3.5
 
-################################################################################
+
 # Edit package versions/mirrors as required.
-#
-# Note: Cloog confusion: See http://patchwork.ozlabs.org/patch/80355/
+
 ################################################################################
-export GCC_FROM_REPO=yes
-export BINUTILS_SNAPSHOT=no
-export GMP_VERSION=5.0.1
-export MPFR_VERSION=3.0.0
-export MPC_VERSION=0.8.2
-export BINUTILS_VERSION=2.21
+# BINUTILS #####################################################################
+################################################################################
 
-##### BINUTILS #################################################################
+export BINUTILS_SNAPSHOT=n
 
-if [ $BINUTILS_SNAPSHOT == "yes" ]; then
-    export BINUTILS_VERSION=2.21
-    export BINUTILS_TARBALL=ftp://sourceware.org/pub/binutils/snapshots/binutils-$BINUTILS_VERSION.tar.bz2
+if [ $BINUTILS_SNAPSHOT == "y" ]; then
+	# Snapshot
+	export BINUTILS_VERSION=2.22.51 # filename version
+	BINUTILS_SRC_VERSION=2.22.51 # extracted version
+	BINUTILS_TARBALL=ftp://sourceware.org/pub/binutils/snapshots/binutils-$BINUTILS_VERSION.tar.bz2
 else
-    export BINUTILS_VERSION=2.21
-    export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
-    export BINUTILS_TARBALL=$BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
+	# Release
+	export BINUTILS_VERSION=2.21.1a # filename version
+	BINUTILS_SRC_VERSION=2.21.1 # extracted version
+	export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
+	BINUTILS_TARBALL=$BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
 fi
 
-##### GCC ######################################################################
+export BINUTILS_TARBALL
+export BINUTILS_SRC_VERSION
 
-if [ $GCC_FROM_REPO == "yes" ]; then
-    export GCC_REPO=svn://gcc.gnu.org/svn/gcc/trunk
-	export GCC_REPO=svn://gcc.gnu.org/svn/gcc/branches/gcc-4_6-branch
-    export GCC_VERSION="svn-trunk"
-    export GCC_DIR=$SRC/gcc
+################################################################################
+# GCC ##########################################################################
+################################################################################
+
+	# OPTION: 'yes' to use svn (overrides GCC_SRC_TYPE)
+	export GCC_FROM_REPO=y
+
+	# OPTION: 'release' or 'snapshot' tarballs if not using svn
+	export GCC_SRC_TYPE=release
+
+	export NATIVE_LANGUAGES="c,c++,ada"
+
+
+if [ $GCC_FROM_REPO == "y" ]; then
+
+	# GCC Trunk
+	# http://gcc.gnu.org/git/?p=gcc.git;a=shortlog;h=refs/heads/trunk
+	export GCC_REPO=svn://gcc.gnu.org/svn/gcc/trunk
+
+	# GCC-4_6-Branch
+	# http://gcc.gnu.org/git/?p=gcc.git;a=shortlog;h=refs/heads/gcc-4_6-branch
+	#export GCC_REPO=svn://gcc.gnu.org/svn/gcc/branches/gcc-4_6-branch
+
+	# OPTION: 4_6-branch, or trunk
+	export GCC_VERSION="trunk"
+
+	export EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--with-gmp=$INSTALL_DIR --with-ppl=$INSTALL_DIR --with-cloog=$INSTALL_DIR"
+
+	export GCC_DIR=$SRC/gcc-$GCC_VERSION
+
 else
-#   export GCC_VERSION=4.5.2
-    export GCC_VERSION=4.6-20110212 # GCC Snapshot
-    export GCC_DIR=$SRC/gcc-$GCC_VERSION
 
-#   export GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION
-#   export GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/LATEST-4.6
-#   export GCC_MIRROR=ftp://gcc.gnu.org/pub/gcc/snapshots/LATEST-4.6
-    export GCC_MIRROR=ftp://gcc.gnu.org/pub/gcc/snapshots/gcc-$GCC_VERSION #GCC Snapshot
+	if [ $GCC_SRC_TYPE == "release" ]; then
+		# Release Version
+		# git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/branches/gcc-4_6-branch@175472
+		# 138bc75d-0d04-0410-961f-82ee72b054a4
+		GCC_VERSION=4.6.1
+		GCC_MIRROR=ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION
+	elif [ $GCC_SRC_TYPE == "snapshot" ]; then
+		# Snapshot Version
+		GCC_VERSION=4.6-20110930
+		GCC_MIRROR=ftp://gcc.gnu.org/pub/gcc/snapshots/$GCC_VERSION
+	fi
+
+	export $EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--without-ppl --without-cloog"
+	export GCC_VERSION
+	export GCC_MIRROR
+	export GCC_DIR=$SRC/gcc-$GCC_VERSION
 fi
+
+################################################################################
+# Additional Options
+################################################################################
 
 # export U_BOOT_VERSION=1.3.4
 export NEWLIB_VERSION=1.19.0
-# export PPL_VERSION=0.11.2
-# export CLOOG_PPL_VERSION=0.15.10
+export PPL_VERSION=0.11.2
+export CLOOG_PPL_VERSION=0.15.11
+
+# GNU Multiple Precision Arithmetic Library
+export GMP_VERSION=5.0.1
+
+# Multiple Precision Floating Point Computations With Correct Rounding
+export MPFR_VERSION=3.0.1
+
+export MPC_VERSION=0.8.2
 
 export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
 export GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
@@ -103,12 +154,11 @@ export MPC_MIRROR=http://www.multiprecision.org/mpc/download
 export NEWLIB_MIRROR=ftp://sources.redhat.com/pub/newlib
 # export PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
 export PPL_MIRROR=ftp://ftp.cs.unipr.it/pub/ppl/releases/$PPL_VERSION
-# export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
-# export SPARK_FILE=spark-gpl-2010-SMT-src.tar.gz
-# export SPARK_FILE=spark-gpl-2010-SMT-x86_64-pc-linux-gnu.tar.gz
+export CLOOG_PPL_MIRROR=ftp://gcc.gnu.org/pub/gcc/infrastructure
+# export SPARK_FILE=spark-gpl-2011-x86_64-pc-linux-gnu.tar.gz
 
 ################################################################################
-# Add any extra implementation specific tuning you want here
+# Implementation specific tuning
 ################################################################################
 
 # Versions of the GNU C library up to and including 2.11.1 included an incorrect
@@ -119,19 +169,7 @@ export PPL_MIRROR=ftp://ftp.cs.unipr.it/pub/ppl/releases/$PPL_VERSION
 # older GLIBC and actually rely on the incorrect behavior of cproj, then you can
 # disable GCC's transformations using -fno-builtin-cproj.
 
-#export EXTRA_NATIVE_CFLAGS="-fno-builtin-cproj -mtune="
-
-################################################################################
-# Installation directory
-#
-# Stage1 = Latest version of the compilers built with the system compilers.
-# Stage2 = Latest version of the compilers built with the stage1 compilers.
-# Cross  = Latest version of the cross-compilers built with the stage1 compilers.
-################################################################################
-export TAMP=$HOME/opt/tamp
-# export STAGE1_PREFIX=$TAMP/stage1
-# export STAGE2_PREFIX=$TAMP/$GCC_VERSION
-# export CROSS_PREFIX=$TAMP/cross
+#export EXTRA_NATIVE_CFLAGS="-mtune="
 
 ################################################################################
 # GMP, MPFR, MPC static lib installation directory
