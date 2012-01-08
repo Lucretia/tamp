@@ -206,6 +206,17 @@ make install &> ../log.newlib.make.install.txt
 make -j4 &> ../log.gcc2.make.txt
 make install &> ../log.gcc2.make.install.txt
 
+Caveats
+-------
+
+The above will build with binutils-2.22, newlib-1.19.0 and gcc-4.6.2, but when
+configuring newlib, the following needs to be added to the configure line:
+
+  --disable-newlib-supplied-syscalls
+
+For some reason, this does not build properly without it, yet it works fine for
+GCC-4.6.1, odd.
+
 Sample outputs
 --------------
 
