@@ -214,8 +214,7 @@ configuring newlib, the following needs to be added to the configure line:
 
   --disable-newlib-supplied-syscalls
 
-For some reason, this does not build properly without it, yet it works fine for
-GCC-4.6.1, odd.
+N.B: This is supposed to fix the issue - IT DOES NOT. GCC-4.6.2 will not build newlib, I know this is to do with ARMv6-m multilib and the ASM not being correct. I'm not looking into this at this time. 4.6.1 is fine ATM.
 
 Sample outputs
 --------------
