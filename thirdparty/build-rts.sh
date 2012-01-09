@@ -10,7 +10,7 @@ source ./errors.inc
 
 # This defines the boards we currently support. This will also define where
 # the RTS is built.
-BOARDS="xpresso1769 beagle pc"
+BOARDS="stm32f4"
 
 function list_boards()
 {
@@ -55,7 +55,7 @@ fi
 echo "  Creating RTS with GCC-$GCC_VERSION for '$1' board"
 
 export PATH=$INSTALL_DIR/bin:$PATH
-export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
 RTS=$TOP/../rts
 
@@ -152,8 +152,8 @@ function create_symlinks()
 # $1 = board name
 function build_rts()
 {
-    export PATH=$INSTALL_DIR/bin:$PATH
-    export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
+#    export PATH=$INSTALL_DIR/bin:$PATH
+#    export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
     cd $RTS
 
@@ -163,14 +163,14 @@ function build_rts()
 	"pc")
 	    GNATMAKE="gnatmake"
 	    ;;
-	"beagle" | "xpresso1769")
+	"stm32f4")
 	    GNATMAKE="arm-none-eabi-gnatmake"
 	    ;;
     esac
 
-#    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
+    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
 
-    BOARD=$1 make
+#    BOARD=$1 make
 }
 
 
