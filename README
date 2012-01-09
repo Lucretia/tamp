@@ -33,6 +33,11 @@ This will compile and install the latest version of GCC (4.6.1) to the directory
 of your choice. With a Debian Squeeze machine, this process takes approximately
 5.3GB of disk space.
 
+The time it took to build on my machine are as follows:
+
+Native: Last Process Took: 170m37.16s
+ARM   : Last Process Took: 34m13.37s
+
 As the native toolchain is bootstrapped it is compiled 3 times and then we check it
 explicitly, the following are my results of the testsuite (C, Ada, C++):
 
