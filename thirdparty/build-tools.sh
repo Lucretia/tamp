@@ -789,7 +789,7 @@ function build_cross_toolchain()
 	# fi
 
 	if [ ! -f .make-install ]; then
-		echo "  >> [14/$TASK_COUNT_TOTAL] Installing Cross Stage 2 GCC (C/Ada)..."
+		echo "  >> [13/$TASK_COUNT_TOTAL] Installing Cross Stage 2 GCC (C/Ada)..."
 		make install &> $LOGPRE-gcc2-install.txt
 
 		check_error .make-install
