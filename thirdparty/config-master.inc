@@ -69,8 +69,8 @@ if [ $BINUTILS_SNAPSHOT == "y" ]; then
 	BINUTILS_TARBALL=ftp://sourceware.org/pub/binutils/snapshots/binutils-$BINUTILS_VERSION.tar.bz2
 else
 	# Release
-	export BINUTILS_VERSION=2.21.1a # filename version
-	BINUTILS_SRC_VERSION=2.21.1 # extracted version
+	export BINUTILS_VERSION=2.22 # filename version
+	BINUTILS_SRC_VERSION=2.22 # extracted version
 	export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
 	BINUTILS_TARBALL=$BINUTILS_MIRROR/binutils-$BINUTILS_VERSION.tar.bz2
 fi
@@ -112,7 +112,9 @@ if [ $GCC_FROM_REPO == "y" ]; then
 	# OPTION: 4_6-branch, or trunk
 	export GCC_VERSION="trunk"
 
-	export EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--with-gmp=$INSTALL_DIR --with-ppl=$INSTALL_DIR --with-cloog=$INSTALL_DIR"
+	# TODO: We need to get this gmp linked from source to gcc/
+	#export EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--with-gmp=$INSTALL_DIR --with-ppl=$INSTALL_DIR --with-cloog=$INSTALL_DIR"
+	#export EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--with-ppl=$INSTALL_DIR --with-cloog=$INSTALL_DIR"
 
 	export GCC_DIR=$SRC/gcc-$GCC_VERSION
 
@@ -130,7 +132,7 @@ else
 		GCC_MIRROR=ftp://gcc.gnu.org/pub/gcc/snapshots/$GCC_VERSION
 	fi
 
-	export $EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--without-ppl --without-cloog"
+	#export EXTRA_NATIVE_GCC_CONFIGURE_FLAGS="--without-ppl --without-cloog"
 	export GCC_VERSION
 	export GCC_MIRROR
 	export GCC_DIR=$SRC/gcc-$GCC_VERSION
@@ -153,7 +155,7 @@ export MPFR_VERSION=3.0.1
 
 export MPC_VERSION=0.8.2
 
-export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
+#export BINUTILS_MIRROR=http://ftp.gnu.org/gnu/binutils
 export GMP_MIRROR=ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION
 export MPFR_MIRROR=http://www.mpfr.org/mpfr-$MPFR_VERSION
 export MPFR_PATCHES=http://www.mpfr.org/mpfr-$MPFR_VERSION/allpatches
