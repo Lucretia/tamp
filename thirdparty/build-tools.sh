@@ -591,7 +591,7 @@ function build_cross_toolchain()
 	STAGE="$VER"
 	DIRS="binutils-$BINUTILS_SRC_VERSION gcc1 newlib gcc2"
     
-	local TASK_COUNT_TOTAL=14
+	local TASK_COUNT_TOTAL=13
 	echo "  >> [1/$TASK_COUNT_TOTAL] Creating Directories (if needed)..."
 
 	for d in $DIRS; do
