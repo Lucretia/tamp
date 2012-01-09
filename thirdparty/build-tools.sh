@@ -425,8 +425,8 @@ function build_arithmetic_libs()
 		check_error .make-install
 	fi
 
-	export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH="$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH"
+	#export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
+	#export LD_LIBRARY_PATH="$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH"
 
 	echo "  (x) Finished Processing GMP, PPL and Cloog-PPL"
 }
@@ -445,9 +445,7 @@ function build_native_binutils(){
 		echo "  >> [1/$TASK_COUNT_TOTAL] Configuring Binutils (Native)..."
 		$SRC/binutils-$BINUTILS_SRC_VERSION/configure \
 		--prefix=$INSTALL_DIR \
-		--target=x86_64-unknown-linux \
 		--enable-multilib \
-		--enable-64-bit-bfd \
 		--disable-nls \
 		--disable-shared \
 		--disable-threads \
@@ -458,6 +456,10 @@ function build_native_binutils(){
 		--with-ppl=$INSTALL_DIR \
 		--with-cloog=$INSTALL_DIR \
 		&> $LOGPRE-binutils-config.txt
+#		--target=x86_64-unknown-linux \
+#		--enable-64-bit-bfd \
+#		--without-ppl \
+#		--without-cloog \
 
 		check_error .config
 	fi
@@ -507,7 +509,7 @@ function build_native_toolchain()
 
 	# Paths
 	export PATH=$INSTALL_DIR/bin:$PATH
-	export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
 	# Build native binutils
 	build_native_binutils
@@ -531,12 +533,15 @@ function build_native_toolchain()
 		--enable-languages=$NATIVE_LANGUAGES \
 		--with-system-zlib \
 		--disable-libgomp \
-		CFLAGS="$EXTRA_NATIVE_CFLAGS" \
 		--without-libffi \
 		--without-libiconv-prefix \
 		--disable-libmudflap \
 		--disable-nls \
 		--disable-libstdcxx-pch \
+		--with-gmp=$INSTALL_DIR \
+		--with-ppl=$INSTALL_DIR \
+		--with-cloog=$INSTALL_DIR \
+		CFLAGS="$EXTRA_NATIVE_CFLAGS" \
 		$EXTRA_NATIVE_GCC_CONFIGURE_FLAGS \
 		&> $LOGPRE-gcc-$GCC_VERSION-configure.txt
 
@@ -599,7 +604,7 @@ function build_cross_toolchain()
 	CBD=$BLD/$STAGE
 
 	export PATH=$INSTALL_DIR/bin:$PATH
-	export LD_LIBRARY_PATH=$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib$BITS:$LD_LIBRARY_PATH
 
 	# Build Cross version of BinUtils.
 	cd $CBD/binutils-$BINUTILS_SRC_VERSION
@@ -617,9 +622,12 @@ function build_cross_toolchain()
 		--with-gcc \
 		--with-gnu-as \
 		--with-gnu-ld \
-		--without-ppl \
-		--without-cloog \
+		--with-gmp=$INSTALL_DIR \
+		--with-ppl=$INSTALL_DIR \
+		--with-cloog=$INSTALL_DIR \
 		&> $LOGPRE-binutils-config.txt
+#		--without-ppl \
+#		--without-cloog \
 
 		check_error .config
 	fi
@@ -639,12 +647,12 @@ function build_cross_toolchain()
 
 	LAST=`pwd`
 
-	# Build stage 2 GCC with C only.
+	# Build stage 1 GCC with C only.
 	cd $CBD/gcc1
 
 	if [ -f $LAST/.make-install ]; then
 	if [ ! -f .config ]; then
-		echo "  >> [5/$TASK_COUNT_TOTAL] Configuring Cross Stage2 GCC (C Only)..."
+		echo "  >> [5/$TASK_COUNT_TOTAL] Configuring Cross Stage 1 GCC (C Only)..."
 		$GCC_DIR/configure \
 		--prefix=$INSTALL_DIR \
 		--target=$1 \
@@ -660,15 +668,18 @@ function build_cross_toolchain()
 		--enable-languages=c \
 		--disable-libssp \
 		--without-headers \
-		--without-ppl \
-		--without-cloog \
+		--with-gmp=$INSTALL_DIR \
+		--with-ppl=$INSTALL_DIR \
+		--with-cloog=$INSTALL_DIR \
 		&> $LOGPRE-gcc1-config.txt
+#		--without-ppl \
+#		--without-cloog \
 
 		check_error .config
 	fi
 
 	if [ ! -f .make ]; then
-		echo "  >> [6/$TASK_COUNT_TOTAL] Building Cross Stage2 GCC (C Only)..."
+		echo "  >> [6/$TASK_COUNT_TOTAL] Building Cross Stage 1 GCC (C Only)..."
 		# use all-gcc, otherwise libiberty fails as it requires sys/types.h
 		# which doesn't exist and tbh, shouldn't even be getting built, it's
 		# a bug which has been reported here:
@@ -679,13 +690,13 @@ function build_cross_toolchain()
 	fi
 
 	if [ ! -f .make-install ]; then
-		echo "  >> [7/$TASK_COUNT_TOTAL] Installing Cross GCC (C Only)..."
+		echo "  >> [7/$TASK_COUNT_TOTAL] Installing Cross Stage 1 GCC (C Only)..."
 		make install-gcc &> $LOGPRE-gcc1-install.txt
 
 	    check_error .make-install
 	fi
 	fi
-	echo "  (x) Cross Stage2 GCC (C Only) Installed"
+	echo "  (x) Cross Stage 1 GCC (C Only) Installed"
 
 	LAST=`pwd`
 
@@ -703,9 +714,12 @@ function build_cross_toolchain()
 			--with-gnu-as \
 			--with-gnu-ld \
 			--disable-nls \
-			--without-ppl \
-			--without-cloog \
+		--with-gmp=$INSTALL_DIR \
+		--with-ppl=$INSTALL_DIR \
+		--with-cloog=$INSTALL_DIR \
 			&> $LOGPRE-newlib-config.txt
+#			--without-ppl \
+#			--without-cloog \
 
 			check_error .config
 		fi
@@ -727,12 +741,12 @@ function build_cross_toolchain()
 	echo "  (x) Newlib Installed"
 	LAST=`pwd`
 
-	# Build Stage 2 GCC with C & Ada
+	# Build Stage 2 GCC with C, C++ & Ada
 	cd $CBD/gcc2
 
 	if [ -f $LAST/.make-install ]; then
 	if [ ! -f .config ]; then
-		echo "  >> [11/$TASK_COUNT_TOTAL] Configuring Cross GCC (C/Ada)..."
+		echo "  >> [11/$TASK_COUNT_TOTAL] Configuring Cross Stage 2 GCC (C/Ada)..."
 		$GCC_DIR/configure \
 		--prefix=$INSTALL_DIR \
 		--target=$1 \
@@ -746,39 +760,43 @@ function build_cross_toolchain()
 		--disable-lto \
 		--with-gnu-as \
 		--with-gnu-ld \
-		--enable-languages=c,ada \
-		--disable-libada \
+		--enable-languages=c,c++,ada \
 		--disable-libssp \
-		--without-ppl \
-		--without-cloog \
+		--with-gmp=$INSTALL_DIR \
+		--with-ppl=$INSTALL_DIR \
+		--with-cloog=$INSTALL_DIR \
 		&> $LOGPRE-gcc2-config.txt
+#		--without-ppl \
+#		--without-cloog \
+# this next line actually forces gnattools not to build!
+#		--disable-libada \
 
 		check_error .config
 	fi
 
 	if [ ! -f .make ]; then
-		echo "  >> [12/$TASK_COUNT_TOTAL] Building Cross GCC (C/Ada)..."
-		make $JOBS all-gcc &> $LOGPRE-gcc2-make.txt
+		echo "  >> [12/$TASK_COUNT_TOTAL] Building Cross Stage 2 GCC (C/Ada)..."
+		make $JOBS &> $LOGPRE-gcc2-make.txt
 
 		check_error .make
 	fi
 
-	if [ ! -f .make-gnattools ]; then
-		echo "  >> [13/$TASK_COUNT_TOTAL] Building Cross Gnattools..."
-		make $JOBS all-gnattools &> $LOGPRE-gcc2-make-gnattools.txt
+	# if [ ! -f .make-gnattools ]; then
+	# 	echo "  >> [13/$TASK_COUNT_TOTAL] Building Cross Stage 2 GCC (GNAT Tools)..."
+	# 	make $JOBS all-gnattools &> $LOGPRE-gcc2-make-gnattools.txt
 
-		check_error .make-gnattools
-	fi
+	# 	check_error .make-gnattools
+	# fi
 
 	if [ ! -f .make-install ]; then
-		echo "  >> [14/$TASK_COUNT_TOTAL] Installing Cross GCC (C/Ada)..."
-		make install-gcc &> $LOGPRE-gcc2-install.txt
+		echo "  >> [14/$TASK_COUNT_TOTAL] Installing Cross Stage 2 GCC (C/Ada)..."
+		make install &> $LOGPRE-gcc2-install.txt
 
 		check_error .make-install
 	fi
 	fi
 
-	echo "  (x) Cross Stage2 GCC (C/Ada) Installed"
+	echo "  (x) Cross Stage 2 GCC (C/Ada) Installed"
 
 	# Get back to the build directory.
 	cd $BLD
@@ -927,9 +945,9 @@ TIMEFORMAT=$'  Last Process Took: %2lR';
 # Begin the specified build operation
 case "$targ" in
 	native)	 		{ time {
-						if [ $GCC_VERSION == "trunk" ]; then
+#						if [ $GCC_VERSION == "trunk" ]; then
 							build_arithmetic_libs;
-						fi
+#						fi
 							build_native_toolchain;
 } }
 					;;
@@ -948,15 +966,16 @@ case "$targ" in
 	*)				# Default
 					{ time {
 
-						if [ $GCC_VERSION == "trunk" ]; then
+#						if [ $GCC_VERSION == "trunk" ]; then
 							build_arithmetic_libs;
-						fi
+#						fi
 
 							build_native_toolchain;
 							#time ( build_cross_toolchain arm-none-eabi --enable-interwork );
 							#build_cross_toolchain i386-elf;
 							#build_cross_toolchain mips-elf;
-					} };;
+					} }
+					;;
 esac
 
 #build_u_boot arm-none-eabi
