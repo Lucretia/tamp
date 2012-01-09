@@ -29,9 +29,44 @@ command to build the native toolchain:
 
   ./build-tools.sh -t native
 
-This will compile and install the latest version of GCC (4.6.0) to the directory
+This will compile and install the latest version of GCC (4.6.1) to the directory
 of your choice. With a Debian Squeeze machine, this process takes approximately
-2.4GB of disk space.
+5.3GB of disk space.
+
+As the native toolchain is bootstrapped it is compiled 3 times and then we check it
+explicitly, the following are my results of the testsuite (C, Ada, C++):
+
+		=== gcc Summary ===
+
+# of expected passes		78926
+# of unexpected failures	34
+# of unexpected successes	29
+# of expected failures		235
+# of unsupported tests		1101
+/home/laguest/src/mine/tamp/thirdparty/build/native/gcc-4.6.1/gcc/xgcc  version 4.6.1 (GCC) 
+
+make[2]: [check-parallel-gcc] Error 1 (ignored)
+make[2]: Leaving directory `/home/laguest/src/mine/tamp/thirdparty/build/native/gcc-4.6.1/gcc'
+Test Run By laguest on Mon Jan  9 15:58:46 GMT 2012
+
+		=== acats Summary ===
+# of expected passes		2321
+# of unexpected failures	0
+
+		=== gnat Summary ===
+
+# of expected passes		869
+# of unexpected failures	1
+# of expected failures		10
+# of unresolved testcases	1
+# of unsupported tests		2
+
+		=== g++ Summary ===
+
+# of expected passes		27536
+# of expected failures		164
+# of unsupported tests		359
+
 
 The toolchain has been built on the following machines:
 
@@ -63,6 +98,8 @@ We intend to target the following architectures initially:
 
 * ARM, using the STM32F4DISCOVERY board.
 * PIC32, using the ChipKIT UNO32 board.
+
+We will expand on the supported targets as we progress.
 
 -------------------------------------------------------------------------------
 Getting started
@@ -119,7 +156,7 @@ flag to turn this on/off yet so you will require the following packages:
 Common problems
 -------------------------------------------------------------------------------
 
-When building the cross gnattools, if the following error occurs:
+* When building the cross gnattools, if the following error occurs:
 
   make.adb:7388:07: "Create_Temp_Output_File" is undefined
 
@@ -127,6 +164,10 @@ GNAT is not using the right version of the compiler to build itself! Check
 that the native tools have built and installed themselves properly into $TAMP
 otherwise the gnatmake found will be the system one and s-os_lib may not
 have Create_Temp_Output_File subprogram defined.
+
+* The configure script has stated that GNAT Tools will not be built:
+
+Make sure the following flag is not on the configure line "-disable-libada"
 
 -------------------------------------------------------------------------------
 The new patch seems to work!
