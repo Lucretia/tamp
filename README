@@ -1,12 +1,5 @@
                     The Ada Microkernel Project (TAMP)
 
-  *********************************************************************
-  ** THE BUILD SCRIPT FAILS AT THIS TIME - WE ARE LOOKING INTO IT!!! **
-  **                                                                 **
-  ** See the section titled "The new patch seems to work!" for       **
-  ** instructions on how to build the toolchain.                     **
-  *********************************************************************
-
 -------------------------------------------------------------------------------
 Legal
 -------------------------------------------------------------------------------
@@ -33,7 +26,7 @@ This will compile and install the latest version of GCC (4.6.1) to the directory
 of your choice. With a Debian Squeeze machine, this process takes approximately
 5.3GB of disk space.
 
-The time it took to build on my machine are as follows:
+The build times on my machine are as follows:
 
 Native: Last Process Took: 170m37.16s
 ARM   : Last Process Took: 34m13.37s
@@ -88,12 +81,7 @@ board you intend to build TAMP for:
 
   ./build-rts.sh <boardname>
 
-or
-
-  cd <tamp>/rts
-  arm-none-eabi-gnatmake -P gnat.gpr -XBoard=stm32f4 -v
-
-The current builds of the toolchain can now build the RTS from the GPR file.
+Where <boardname> can be stm32f4.
 
 -------------------------------------------------------------------------------
 Targets
