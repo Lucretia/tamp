@@ -72,16 +72,37 @@ The toolchain has been built on the following machines:
 * Debian Squeeze; GNAT/GCC 4.4.5, GNAT/GPL GCC 4.3.6
 
 You then need to build a target toolchain, here we are targeting ARM:
-NB. This process requires approximately 1.2GB free space.
+NB. Currently, on my machine, this process requires approximately 1.2GB
+free disk space to build the native toolchain and the arm-none-eabi
+toolchain.
 
   ./build-tools.sh -t arm-none-eabi
 
+-------------------------------------------------------------------------------
+RTS
+-------------------------------------------------------------------------------
+
 After building the toolchain, you will then require a runtime library for the
-board you intend to build TAMP for:
+board you intend to build TAMP for.
 
   ./build-rts.sh <boardname>
 
 Where <boardname> can be stm32f4.
+
+N.B: Just a quick note to say that GNAT is extremely flaky. I did manage using a
+previous toolchain build to build an RTS using gnatmake and a project file;
+for some reason, this is not working providing me with an internal compiler
+error (or ICE):
+
+<log>
+arm-none-eabi-gcc -c -gnat05 -gnatg -O2 -ffunction-sections -fdata-sections --RTS=/home/laguest/src/mine/tamp/thirdparty/../rts/boards/stm32f4 -I- -gnatA /home/laguest/src/mine/tamp/rts/src/common/g-souinf.ads
+Exception name: SYSTEM.ASSERTIONS.ASSERT_FAILURE
+Message: namet.adb:655
+
+arm-none-eabi-gnatmake: INTERNAL ERROR. Please report.
+</log>
+
+So, for the moment, I will use a makefile with the build-rts.sh script.
 
 -------------------------------------------------------------------------------
 Targets
