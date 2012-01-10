@@ -41,10 +41,14 @@ else
     source ./config.inc
 fi
 
-if [ $# != 1 ]
+if [ $# == 0 ]
 then
     echo "  Usage:"
     echo "  ./build-rts.sh <boardname>"
+    echo "  or"
+    echo "  ./build-rts.sh <boardname> rebuild"
+    echo "  or"
+    echo "  ./build-rts.sh clean"
     echo ""
 
     list_boards
@@ -141,6 +145,17 @@ function create_symlinks()
 	    check_error_exit
 	done
 
+	FILES=$BODIES
+
+	for f in $FILES
+	do
+	    echo "  >> Linking $f to $RTS/src/common/$f..."
+
+	    ln -s $RTS/src/common/$f $f
+
+	    check_error_exit
+	done
+
 	echo "  >> Linking system.ads to $RTS/src/boards/$1/system.ads..."
 
 	ln -s $RTS/src/boards/$1/system.ads system.ads
@@ -168,9 +183,11 @@ function build_rts()
 	    ;;
     esac
 
-    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
+    FLAGS="-gnatf -gnatv"
 
-#    BOARD=$1 make
+#    $GNATMAKE --RTS=$RTS/boards/$1 -XBoard=$1 -Pgnat.gpr
+
+    BOARD=$1 make
 }
 
 
@@ -184,10 +201,24 @@ function clean_objs()
 
 # copy_rts_files
 
-check_board_name $1
-create_dirs
-create_symlinks $1
-build_rts $1
-clean_objs
+if [ $1 = "clean" ]
+then
+    rm -rf obj
+    rm -rf boards
+else
+    if [ $2 = "rebuild" ]
+    then
+	cd $RTS
+
+	BOARD=$1 make clean
+    fi
+
+    check_board_name $1
+    create_dirs
+    create_symlinks $1
+    echo "Using : " `which arm-none-eabi-gnatmake`
+    build_rts $1
+    clean_objs
+fi
 
 cd $TOP
