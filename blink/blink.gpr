@@ -1,0 +1,35 @@
+-- PATH=/opt/tamp/bin:$PATH LD_LIBRARY_PATH=/opt/tamp/lib64:$LD_LIBRARY_PATH arm-none-eabi-gnatmake --RTS=/home/laguest/src/mine/tamp/rts/boards/beagle -XBoard=beagle -Ptamp.gpr
+project Blink is
+   --type Board_Name is ("stm32f4");
+
+   --Board : Board_Name := external ("Board");
+
+   -- TODO: Add in a case statement that adds an arch dir to source.
+
+   for Source_Dirs use ("src");
+--   for Source_Files use ("stm32f4xx.adb", "blink.adb");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+   for Main use ("blink.adb");
+
+   package Builder is
+      for Default_Switches ("Ada") use
+         ("-gnat2005", "-g", "-x", "-a", "-gnatg", "-nostdinc", "-nostdlib");
+--	  "--RTS=`pwd`/../rts/boards/" & Board);
+   end Builder;
+
+   package Compiler is
+      for Default_Switches ("Ada") use
+      	  ("-O0", "-g", "-ggdb", "-ffunction-sections", "-fdata-sections", "-mcpu=cortex-m4", "-mthumb");
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("Ada") use ("-nostdinc", "-nostdlib");
+      -- "-n"
+   end Binder;
+
+-- To reduce size of final binary.
+   package Linker is
+      for Default_Switches ("Ada") use ("-Wl,--gc-sections", "-nostartfiles", "-nodefaultlibs", "-nostdlib", "-T../stm32_flash.ld", "-v");
+   end Linker;
+end Blink;
