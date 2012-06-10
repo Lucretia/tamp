@@ -52,6 +52,12 @@ begin
    --  subprogram. We will not return to Kick as TAMP will take over ending
    --  by calling it's scheduler to start the processes we have loaded from
    --  the system image.
+   --
+   --  Whilst Kick will have access to the framebuffer's or serial lines for
+   --  debug information, once TAMP is running there will need to be display
+   --  drivers running, whether that is a framebuffer or access to 3D
+   --  hardware. At this point, this driver will have a standard interface and
+   --  a defined way of accessing it, as with all drivers.
 end Kick;
 pragma No_Return (Kick);
 
