@@ -41,7 +41,7 @@ pragma Restrictions (No_Finalization);
 pragma Restrictions (Max_Tasks => 0);
 pragma Restrictions (No_Protected_Types);
 pragma Restrictions (No_Delay);
---  pragma Restrictions (No_Floating_Point);
+pragma Restrictions (No_Floating_Point);
 pragma Restrictions (No_Recursion);
 pragma Restrictions (No_Allocators);
 pragma Restrictions (No_Dispatch);
