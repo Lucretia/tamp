@@ -21,7 +21,7 @@ Introduction
 -------------------------------------------------------------------------------
 
 The aim of this project is to create a simple microkernel using Ada as the
-implementation lanaguage.
+implementation language.
 
 To get the toolchain built, enter the thirdparty directory, and copy the
 config-master.inc file to config.inc, edit config.inc and then run the following
